@@ -124,17 +124,20 @@ function drawRotulo(
 
   // UNIDAD O FORMACIÓN - en la misma línea
   doc.setFont('helvetica', 'bold');
-  doc.text('UNIDAD O FORMACIÓN', leftMargin, yPos);
+  doc.text('UNIDAD O FORMACIÓN:', leftMargin, yPos);
   doc.setFont('helvetica', 'normal');
   const unidadText = rotulo.unidadFormacion || '';
   const unidadX = leftMargin + 3.5;
   doc.text(unidadText, unidadX, yPos);
+  // Subrayar UNIDAD O FORMACIÓN
+  const unidadWidth = doc.getTextWidth(unidadText);
+  doc.line(unidadX, yPos + 0.05, unidadX + unidadWidth, yPos + 0.05);
 
   yPos += 0.4;
 
   // COORDENADA: X e Y
   doc.setFont('helvetica', 'bold');
-  doc.text('COORDENADA:', leftMargin, yPos);
+  doc.text('COORDENADAS:', leftMargin, yPos);
   doc.text('X:', leftMargin + 2.2, yPos);
   doc.setFont('helvetica', 'normal');
   const xText = rotulo.x || '';
@@ -156,9 +159,9 @@ function drawRotulo(
 
   yPos += 0.4;
 
-  // LOCALIZACIÓN
+  // LOCALIZACIÓN - en la misma línea con múltiples líneas
   doc.setFont('helvetica', 'bold');
-  doc.text('LOCALIZACIÓN', leftMargin, yPos);
+  doc.text('LOCALIZACIÓN:', leftMargin, yPos);
   yPos += 0.35;
   doc.setFont('helvetica', 'normal');
   if (rotulo.localizacion) {
@@ -174,11 +177,11 @@ function drawRotulo(
     yPos += 0.35;
   }
 
-  yPos += 0.1;
+  yPos += 0.05;
 
   // GEÓLOGO O COLECTOR - en la misma línea
   doc.setFont('helvetica', 'bold');
-  doc.text('GEÓLOGO O COLECTOR', leftMargin, yPos);
+  doc.text('GEÓLOGO O COLECTOR:', leftMargin, yPos);
   doc.setFont('helvetica', 'normal');
   const geologoText = rotulo.geologoColector || '';
   const geologoX = leftMargin + 3.8;
@@ -189,9 +192,9 @@ function drawRotulo(
 
   yPos += 0.4;
 
-  // OBSERVACIONES
+  // OBSERVACIONES - en la misma línea
   doc.setFont('helvetica', 'bold');
-  doc.text('OBSERVACIONES', leftMargin, yPos);
+  doc.text('OBSERVACIONES:', leftMargin, yPos);
   yPos += 0.35;
   doc.setFont('helvetica', 'normal');
   if (rotulo.observaciones) {
@@ -239,11 +242,11 @@ export async function generateRotulosPDF(rotulos: RotuloData[]): Promise<jsPDF> 
   // Calcular espaciado entre rótulos
   const horizontalGap = 0.5; // espacio entre columnas
   const verticalGap = 0.5; // espacio entre filas
-  
+
   // Calcular el ancho y alto total de la cuadrícula
   const gridWidth = (rotuloWidth * cols) + (horizontalGap * (cols - 1));
   const gridHeight = (rotuloHeight * rows) + (verticalGap * (rows - 1));
-  
+
   // Calcular márgenes para centrar la cuadrícula
   const marginLeft = (pageWidth - gridWidth) / 2;
   const marginTop = (pageHeight - gridHeight) / 2;
@@ -252,7 +255,7 @@ export async function generateRotulosPDF(rotulos: RotuloData[]): Promise<jsPDF> 
   for (let i = 0; i < rotulos.length; i++) {
     const pageIndex = Math.floor(i / rotulosPorPagina);
     const positionInPage = i % rotulosPorPagina;
-    
+
     // Agregar nueva página si es necesario (excepto para la primera)
     if (i > 0 && positionInPage === 0) {
       doc.addPage();
