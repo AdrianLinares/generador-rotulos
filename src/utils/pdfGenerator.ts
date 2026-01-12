@@ -159,7 +159,7 @@ function drawRotulo(
 
   yPos += 0.4;
 
-  // LOCALIZACIÓN - en la misma línea con múltiples líneas
+  // LOCALIZACIÓN
   doc.setFont('helvetica', 'bold');
   doc.text('LOCALIZACIÓN:', leftMargin, yPos);
   yPos += 0.35;
@@ -192,7 +192,7 @@ function drawRotulo(
 
   yPos += 0.4;
 
-  // OBSERVACIONES - en la misma línea
+  // OBSERVACIONES
   doc.setFont('helvetica', 'bold');
   doc.text('OBSERVACIONES:', leftMargin, yPos);
   yPos += 0.35;
