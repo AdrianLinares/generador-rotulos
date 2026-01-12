@@ -8,9 +8,10 @@ Aplicación web completa para generar rótulos geológicos en formato PDF a part
 - **Importación desde Excel**: Pegue datos directamente desde hojas de cálculo
 - **Validación en Tiempo Real**: Verifica que todos los campos requeridos estén completos
 - **Vista Previa Interactiva**: Visualice cómo se verán los rótulos antes de generar el PDF
-- **Generación de PDF**: Crea archivos PDF en formato carta (8.5" × 11") con diseño profesional
+- **Generación de PDF Optimizada**: Crea archivos PDF en formato carta con 6 rótulos por página (2 columnas × 3 filas)
 - **Navegación entre Rótulos**: Revise múltiples rótulos con controles de navegación
 - **Diseño Responsivo**: Funciona en dispositivos de escritorio y móviles
+- **Formato Profesional**: Logo LITOTECA, campos con espaciado uniforme y tipografía optimizada
 
 ## 📋 Campos de Datos
 
@@ -91,7 +92,9 @@ pnpm run lint
 
 - Haga clic en "Descargar PDF"
 - El archivo se descargará automáticamente con el nombre: `rotulos_geologicos_YYYYMMDD.pdf`
-- Cada rótulo ocupará una página completa en formato carta
+- **Formato eficiente**: 6 rótulos por página en formato carta (2 columnas × 3 filas)
+- **Dimensiones de cada rótulo**: 9.182cm × 7.259cm (3.61" × 2.86")
+- Los rótulos están perfectamente centrados y distribuidos en la página
 
 ## 📊 Formato de Datos para Importación
 
@@ -133,12 +136,16 @@ src/
 
 El PDF generado replica exactamente el formato del documento de referencia:
 
-- **Encabezado**: Logo LITOTECA y título del servicio geológico
-- **Formato**: Carta (8.5" × 11" / 215.9mm × 279.4mm)
-- **Orientación**: Vertical
-- **Contenido**: Un rótulo por página
-- **Tipografía**: Helvetica con etiquetas en negrita
-- **Estructura**: Campos organizados verticalmente con espaciado apropiado
+- **Formato de Página**: Carta (8.5" × 11" / 21.59cm × 27.94cm), orientación vertical
+- **Distribución**: 6 rótulos por página en cuadrícula 2×3 (2 columnas, 3 filas)
+- **Dimensiones por Rótulo**: 9.182cm × 7.259cm (3.61" × 2.86")
+- **Logo LITOTECA**: 4.4cm × 1.12cm, centrado en cada rótulo
+- **Tipografía**: Helvetica con tamaños optimizados (8-9pt para etiquetas, 8pt para valores)
+- **Espaciado**: Distancia uniforme de dos espacios entre etiquetas y valores
+- **Bordes**: Cada rótulo tiene un borde negro de 0.5mm
+- **Márgenes**: Los rótulos están centrados con espacios de 0.5cm entre ellos
+- **Campos Subrayados**: ID Muestra, Plancha, Datum, Unidad/Formación, Coordenadas, Localización y Geólogo
+- **Multilinea**: Localización y Observaciones pueden ocupar múltiples líneas si es necesario
 
 ## 🔧 Personalización
 
@@ -157,10 +164,13 @@ export const REQUIRED_FIELDS: (keyof RotuloData)[] = [
 ### Ajustar Diseño del PDF
 
 Modifique `src/utils/pdfGenerator.ts` para cambiar:
-- Márgenes y espaciado
-- Tamaños de fuente
-- Posicionamiento de campos
-- Formato de página
+- **Dimensiones del rótulo**: Variables `rotuloWidth` y `rotuloHeight`
+- **Distribución por página**: Variables `cols` y `rows` (actualmente 2×3 = 6 rótulos)
+- **Espaciado**: Variables `horizontalGap` y `verticalGap` (actualmente 0.5cm)
+- **Tamaños de fuente**: Llamadas a `doc.setFontSize()`
+- **Logo**: Variables `logoWidth` y `logoHeight`
+- **Posicionamiento de campos**: Ajustar valores `yPos` y márgenes internos
+- **Formato de página**: Cambiar `format` en configuración de jsPDF
 
 ## 📝 Notas Importantes
 
@@ -182,7 +192,7 @@ Modifique `src/utils/pdfGenerator.ts` para cambiar:
 
 ## 📄 Licencia
 
-Este proyecto fue desarrollado por MGX (MetaGPTX).
+Este proyecto fue desarrollado por Adrian Linares.
 
 ## 🤝 Soporte
 
