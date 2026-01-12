@@ -50,22 +50,22 @@ function drawRotulo(
     yPos += logoHeight + 0.4; // Espacio adicional después del logo
   } else {
     // Fallback: texto si no se carga el logo
-    doc.setFontSize(10);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
     doc.text('LITOTECA', startX + rotuloWidth / 2, yPos + 0.3, { align: 'center' });
-    doc.setFontSize(6);
+    doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
     doc.text('SERVICIO GEOLÓGICO COLOMBIANO', startX + rotuloWidth / 2, yPos + 0.6, { align: 'center' });
     yPos += 1.2;
   }
 
   // CONTRATO, PROYECTO O CONVENIO
-  doc.setFontSize(8);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.text('CONTRATO, PROYECTO O CONVENIO', leftMargin, yPos);
+  doc.text('CONTRATO, PROYECTO O CONVENIO:', leftMargin, yPos);
   yPos += 0.35;
 
-  doc.setFontSize(7);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   const contratoLines = doc.splitTextToSize(rotulo.contratoProyecto || '', contentWidth);
   contratoLines.forEach((line: string) => {
@@ -80,54 +80,69 @@ function drawRotulo(
   yPos += 0.1;
 
   // ID MUESTRA e IGM (misma línea)
-  doc.setFontSize(7);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   doc.text('ID MUESTRA:', leftMargin, yPos);
+  const idLabelWidth = doc.getTextWidth('ID MUESTRA:');
   doc.setFont('helvetica', 'normal');
   const idMuestraText = rotulo.idMuestra || '';
-  doc.text(idMuestraText, leftMargin + 2.0, yPos);
+  const idSpaceWidth = doc.getTextWidth('  ');
+  const idValueX = leftMargin + idLabelWidth + idSpaceWidth;
+  doc.text(idMuestraText, idValueX, yPos);
   // Subrayar ID MUESTRA
   const idWidth = doc.getTextWidth(idMuestraText);
-  doc.line(leftMargin + 2.0, yPos + 0.05, leftMargin + 2.0 + idWidth, yPos + 0.05);
+  doc.line(idValueX, yPos + 0.05, idValueX + idWidth, yPos + 0.05);
 
   // IGM en la misma línea
   const igmX = leftMargin + 5.0;
   doc.setFont('helvetica', 'bold');
   doc.text('IGM:', igmX, yPos);
+  const igmLabelWidth = doc.getTextWidth('IGM:');
   doc.setFont('helvetica', 'normal');
-  doc.text(rotulo.igm || '', igmX + 0.8, yPos);
+  const igmSpaceWidth = doc.getTextWidth('  ');
+  const igmValueX = igmX + igmLabelWidth + igmSpaceWidth;
+  const igmText = rotulo.igm || '';
+  doc.text(igmText, igmValueX, yPos);
 
   yPos += 0.4;
 
   // PLANCHA y DATUM (misma línea)
   doc.setFont('helvetica', 'bold');
   doc.text('PLANCHA:', leftMargin, yPos);
+  const planchaLabelWidth = doc.getTextWidth('PLANCHA:');
   doc.setFont('helvetica', 'normal');
   const planchaText = rotulo.plancha || '';
-  doc.text(planchaText, leftMargin + 1.5, yPos);
+  const planchaSpaceWidth = doc.getTextWidth('  ');
+  const planchaX = leftMargin + planchaLabelWidth + planchaSpaceWidth;
+  doc.text(planchaText, planchaX, yPos);
   // Subrayar PLANCHA
   const planchaWidth = doc.getTextWidth(planchaText);
-  doc.line(leftMargin + 1.5, yPos + 0.05, leftMargin + 1.5 + planchaWidth, yPos + 0.05);
+  doc.line(planchaX, yPos + 0.05, planchaX + planchaWidth, yPos + 0.05);
 
   // DATUM en la misma línea
   const datumX = leftMargin + 4.0;
   doc.setFont('helvetica', 'bold');
   doc.text('DATUM:', datumX, yPos);
+  const datumLabelWidth = doc.getTextWidth('DATUM:');
   doc.setFont('helvetica', 'normal');
   const datumText = rotulo.datum || '';
-  doc.text(datumText, datumX + 1.2, yPos);
+  const datumSpaceWidth = doc.getTextWidth('  ');
+  const datumValueX = datumX + datumLabelWidth + datumSpaceWidth;
+  doc.text(datumText, datumValueX, yPos);
   // Subrayar DATUM
   const datumWidth = doc.getTextWidth(datumText);
-  doc.line(datumX + 1.2, yPos + 0.05, datumX + 1.2 + datumWidth, yPos + 0.05);
+  doc.line(datumValueX, yPos + 0.05, datumValueX + datumWidth, yPos + 0.05);
 
   yPos += 0.4;
 
   // UNIDAD O FORMACIÓN - en la misma línea
   doc.setFont('helvetica', 'bold');
   doc.text('UNIDAD O FORMACIÓN:', leftMargin, yPos);
+  const unidadLabelWidth = doc.getTextWidth('UNIDAD O FORMACIÓN:');
   doc.setFont('helvetica', 'normal');
   const unidadText = rotulo.unidadFormacion || '';
-  const unidadX = leftMargin + 3.5;
+  const unidadSpaceWidth = doc.getTextWidth('  ');
+  const unidadX = leftMargin + unidadLabelWidth + unidadSpaceWidth;
   doc.text(unidadText, unidadX, yPos);
   // Subrayar UNIDAD O FORMACIÓN
   const unidadWidth = doc.getTextWidth(unidadText);
@@ -138,13 +153,13 @@ function drawRotulo(
   // COORDENADA: X e Y
   doc.setFont('helvetica', 'bold');
   doc.text('COORDENADAS:', leftMargin, yPos);
-  doc.text('X:', leftMargin + 2.2, yPos);
+  doc.text('X:', leftMargin + 2.6, yPos);
   doc.setFont('helvetica', 'normal');
   const xText = rotulo.x || '';
-  doc.text(xText, leftMargin + 2.6, yPos);
+  doc.text(xText, leftMargin + 3, yPos);
   // Subrayar X
   const xWidth = doc.getTextWidth(xText);
-  doc.line(leftMargin + 2.6, yPos + 0.05, leftMargin + 2.6 + xWidth, yPos + 0.05);
+  doc.line(leftMargin + 3, yPos + 0.05, leftMargin + 3 + xWidth, yPos + 0.05);
 
   // Y en la misma línea
   const yCoordX = leftMargin + 5.0;
@@ -162,18 +177,27 @@ function drawRotulo(
   // LOCALIZACIÓN
   doc.setFont('helvetica', 'bold');
   doc.text('LOCALIZACIÓN:', leftMargin, yPos);
-  yPos += 0.35;
+  const localLabelWidth = doc.getTextWidth('LOCALIZACIÓN:');
   doc.setFont('helvetica', 'normal');
-  if (rotulo.localizacion) {
-    const localizacionLines = doc.splitTextToSize(rotulo.localizacion, contentWidth);
-    localizacionLines.forEach((line: string) => {
-      doc.text(line, leftMargin, yPos);
-      // Subrayar
-      const lineWidth = doc.getTextWidth(line);
-      doc.line(leftMargin, yPos + 0.05, leftMargin + lineWidth, yPos + 0.05);
-      yPos += 0.35;
-    });
-  } else {
+  const localizacionText = rotulo.localizacion || '';
+  const localSpaceWidth = doc.getTextWidth('  ');
+  const localizacionX = leftMargin + localLabelWidth + localSpaceWidth;
+  const availableWidth = contentWidth - (localLabelWidth + localSpaceWidth);
+  const localizacionLines = doc.splitTextToSize(localizacionText, availableWidth);
+
+  // Primera línea en la misma línea que el título
+  if (localizacionLines.length > 0) {
+    doc.text(localizacionLines[0], localizacionX, yPos);
+    const firstLineWidth = doc.getTextWidth(localizacionLines[0]);
+    doc.line(localizacionX, yPos + 0.05, localizacionX + firstLineWidth, yPos + 0.05);
+    yPos += 0.35;
+  }
+
+  // Líneas adicionales con sangría
+  for (let i = 1; i < localizacionLines.length; i++) {
+    doc.text(localizacionLines[i], localizacionX, yPos);
+    const lineWidth = doc.getTextWidth(localizacionLines[i]);
+    doc.line(localizacionX, yPos + 0.05, localizacionX + lineWidth, yPos + 0.05);
     yPos += 0.35;
   }
 
@@ -182,9 +206,11 @@ function drawRotulo(
   // GEÓLOGO O COLECTOR - en la misma línea
   doc.setFont('helvetica', 'bold');
   doc.text('GEÓLOGO O COLECTOR:', leftMargin, yPos);
+  const geologoLabelWidth = doc.getTextWidth('GEÓLOGO O COLECTOR:');
   doc.setFont('helvetica', 'normal');
   const geologoText = rotulo.geologoColector || '';
-  const geologoX = leftMargin + 3.8;
+  const geologoSpaceWidth = doc.getTextWidth('  ');
+  const geologoX = leftMargin + geologoLabelWidth + geologoSpaceWidth;
   doc.text(geologoText, geologoX, yPos);
   // Subrayar
   const geologoWidth = doc.getTextWidth(geologoText);
@@ -195,16 +221,26 @@ function drawRotulo(
   // OBSERVACIONES
   doc.setFont('helvetica', 'bold');
   doc.text('OBSERVACIONES:', leftMargin, yPos);
-  yPos += 0.35;
+  const observacionesLabelWidth = doc.getTextWidth('OBSERVACIONES:');
   doc.setFont('helvetica', 'normal');
-  if (rotulo.observaciones) {
-    const observacionesLines = doc.splitTextToSize(rotulo.observaciones, contentWidth);
-    observacionesLines.forEach((line: string) => {
-      if (yPos < startY + rotuloHeight - 0.3) {
-        doc.text(line, leftMargin, yPos);
-        yPos += 0.35;
-      }
-    });
+  const observacionesText = rotulo.observaciones || '';
+  const observacionesSpaceWidth = doc.getTextWidth('  ');
+  const observacionesX = leftMargin + observacionesLabelWidth + observacionesSpaceWidth;
+  const availableWidthObs = contentWidth - (observacionesLabelWidth + observacionesSpaceWidth);
+  const observacionesLines = doc.splitTextToSize(observacionesText, availableWidthObs);
+
+  // Primera línea en la misma línea que el título
+  if (observacionesLines.length > 0) {
+    doc.text(observacionesLines[0], observacionesX, yPos);
+    yPos += 0.35;
+  }
+
+  // Líneas adicionales con sangría
+  for (let i = 1; i < observacionesLines.length; i++) {
+    if (yPos < startY + rotuloHeight - 0.3) {
+      doc.text(observacionesLines[i], observacionesX, yPos);
+      yPos += 0.35;
+    }
   }
 }
 
