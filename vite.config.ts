@@ -19,4 +19,24 @@ export default defineConfig(({ mode }) => ({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunks for better caching
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': [
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-separator',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-label',
+            '@radix-ui/react-toast',
+          ],
+          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
+          'query-vendor': ['@tanstack/react-query'],
+        },
+      },
+    },
+    chunkSizeWarningLimit: 600, // Increase threshold slightly
+  },
 }));

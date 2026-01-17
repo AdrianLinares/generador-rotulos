@@ -193,7 +193,3 @@ Modifique `src/utils/pdfGenerator.ts` para cambiar:
 ## 📄 Licencia
 
 Este proyecto fue desarrollado por Adrian Linares.
-
-## 🤝 Soporte
-
-Para reportar problemas o solicitar nuevas características, por favor contacte al equipo de desarrollo.
