@@ -188,6 +188,14 @@ export default function Index() {
 
   const currentRotulo = rows[currentPreviewIndex];
   const currentCanastilla = canastillaLabels[currentCanastillaPreviewIndex];
+  const previewCanastilla = currentCanastilla ?? {
+    caja: 0,
+    muestras: 0,
+    idsMuestra: [],
+    contratoProyecto: '',
+    anio: '',
+    planchas: [],
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -327,9 +335,7 @@ export default function Index() {
 
             {/* Preview del rótulo */}
             {labelType === 'muestra' && currentRotulo && <RotuloPreview rotulo={currentRotulo} />}
-            {labelType === 'canastilla' && currentCanastilla && (
-              <CanastillaPreview canastilla={currentCanastilla} />
-            )}
+            {labelType === 'canastilla' && <CanastillaPreview canastilla={previewCanastilla} />}
             {labelType === 'canastilla' && !currentCanastilla && (
               <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center text-slate-600">
                 No hay canastillas agrupadas para vista previa. Verifique que CAJA sea un numero entero y

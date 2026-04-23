@@ -10,6 +10,8 @@ export function CanastillaPreview({ canastilla }: CanastillaPreviewProps) {
     const planchasText = formatPlanchas(canastilla.planchas) || '—';
     const proyecto = canastilla.contratoProyecto || '—';
     const anio = canastilla.anio || '—';
+    const cajaText = canastilla.caja > 0 ? String(canastilla.caja) : '—';
+    const muestrasText = canastilla.muestras > 0 ? String(canastilla.muestras) : '—';
 
     return (
         <div className="bg-white mx-auto" style={{ width: '454px', height: '189px' }}>
@@ -17,7 +19,7 @@ export function CanastillaPreview({ canastilla }: CanastillaPreviewProps) {
                 <div className="flex items-start justify-between px-[2px]">
                     <div className="border border-black w-[92px] h-[52px] flex flex-col items-center justify-center leading-tight">
                         <span className="text-[15px] font-semibold">CAJA</span>
-                        <span className="text-[24px] font-semibold">{canastilla.caja}</span>
+                        <span className="text-[24px] font-semibold">{cajaText}</span>
                     </div>
 
                     <div className="flex-1 flex flex-col items-center gap-[4px]">
@@ -28,7 +30,7 @@ export function CanastillaPreview({ canastilla }: CanastillaPreviewProps) {
                             style={{ width: '210px', height: '38px' }}
                         />
                         <div className="border border-black px-[14px] py-[2px] text-[11px] leading-tight">
-                            <span className="font-semibold">MUESTRAS:</span> {canastilla.muestras}
+                            <span className="font-semibold">MUESTRAS:</span> {muestrasText}
                         </div>
                     </div>
 
