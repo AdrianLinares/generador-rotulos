@@ -39,9 +39,10 @@ export function CanastillaPreview({ canastilla }: CanastillaPreviewProps) {
                     <p className="break-words">{idsMuestraText}</p>
                 </div>
 
-                <div className="border border-black px-[10px] py-[6px] text-[8px] leading-tight text-center flex-1 flex flex-col items-center justify-center">
-                    <p>{proyecto} - Año {anio}</p>
+                <div className="border border-black px-[10px] py-[1px] text-[7px] leading-tight text-center flex-1 flex flex-col items-center justify-around">
+                    <p>{proyecto}</p>
                     <p>Planchas: {planchasText}</p>
+                    <p>Año {anio}</p>
                 </div>
             </div>
         </div>
