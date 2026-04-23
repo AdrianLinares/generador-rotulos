@@ -21,35 +21,15 @@ async function getImageBase64(imagePath: string): Promise<string> {
     }
 }
 
-function getIdsFontSize(idsCount: number, idsTextLength: number) {
-    if (idsCount >= 20 || idsTextLength > 180) {
-        return 4.4;
-    }
-
-    if (idsCount >= 16 || idsTextLength > 140) {
-        return 5;
-    }
-
-    if (idsCount >= 12 || idsTextLength > 110) {
-        return 5.8;
-    }
-
-    if (idsCount >= 8 || idsTextLength > 80) {
-        return 6.8;
-    }
-
-    return 8;
-}
-
 function fitTextToBox(
     doc: jsPDF,
     text: string,
     maxWidth: number,
     maxHeight: number,
     initialFontSize: number,
-    minFontSize = 4.2
+    minFontSize = 4.2,
+    lineHeightFactor = 1.15
 ) {
-    const lineHeightFactor = 1.15;
     const lineHeightCm = (fontSize: number) => fontSize * 0.0352778 * lineHeightFactor;
 
     for (let fontSize = initialFontSize; fontSize >= minFontSize; fontSize -= 0.2) {
@@ -79,9 +59,10 @@ function drawFittedCenteredText(
     maxWidth: number,
     maxHeight: number,
     initialFontSize: number,
-    minFontSize = 4.2
+    minFontSize = 4.2,
+    lineHeightFactor = 1.15
 ) {
-    const fit = fitTextToBox(doc, text, maxWidth, maxHeight, initialFontSize, minFontSize);
+    const fit = fitTextToBox(doc, text, maxWidth, maxHeight, initialFontSize, minFontSize, lineHeightFactor);
     const textHeight = fit.lines.length * fit.lineHeight;
     const startY = topY + (maxHeight - textHeight) / 2 + fit.lineHeight * 0.75;
 
@@ -144,12 +125,11 @@ function drawCanastillaLabel(doc: jsPDF, label: CanastillaLabelData, logoBase64:
 
     doc.setFont('helvetica', 'normal');
     const idsText = formatIdsMuestra(label.idsMuestra) || '—';
-    const idsMaxTextWidth = idsBoxWidth - 0.4;
-    const idsFontSize = getIdsFontSize(label.idsMuestra.length, idsText.length);
-    doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'bold');
-    const idsFit = fitTextToBox(doc, idsText, idsMaxTextWidth, idsBoxHeight - 0.10, idsFontSize);
+    const idsMaxTextWidth = idsBoxWidth - 0.12;
+    doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'strong');
+    const idsFit = fitTextToBox(doc, idsText, idsMaxTextWidth, idsBoxHeight - 0.06, 11.5, 4.4, 1.02);
     const idsTextHeight = idsFit.lines.length * idsFit.lineHeight;
-    const idsTextStartY = idsBoxY + (idsBoxHeight - idsTextHeight) / 2 + idsFit.lineHeight * 0.50;
+    const idsTextStartY = idsBoxY + (idsBoxHeight - idsTextHeight) / 2 + idsFit.lineHeight * 0.82;
     doc.setFontSize(idsFit.fontSize);
     idsFit.lines.forEach((line, index) => {
         doc.text(line, idsBoxX + idsBoxWidth / 2, idsTextStartY + index * idsFit.lineHeight, {
@@ -191,7 +171,7 @@ function drawCanastillaLabel(doc: jsPDF, label: CanastillaLabelData, logoBase64:
         4.6
     );
 
-    doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'bold');
+    doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'strong');
     drawFittedCenteredText(
         doc,
         `Planchas: ${planchas}`,
@@ -210,8 +190,8 @@ function drawCanastillaLabel(doc: jsPDF, label: CanastillaLabelData, logoBase64:
         yearAreaY,
         contentMaxWidth,
         yearAreaHeight,
-        6,
-        5
+        6.8,
+        4.0
     );
 }
 
