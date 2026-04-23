@@ -51,25 +51,35 @@ function fitTextToBox(
     };
 }
 
-function drawFittedCenteredText(
+function fitTextsToSharedFont(
     doc: jsPDF,
-    text: string,
-    centerX: number,
-    topY: number,
+    texts: string[],
     maxWidth: number,
-    maxHeight: number,
+    maxHeights: number[],
     initialFontSize: number,
     minFontSize = 4.2,
-    lineHeightFactor = 1.15
+    lineHeightFactor = 1.02
 ) {
-    const fit = fitTextToBox(doc, text, maxWidth, maxHeight, initialFontSize, minFontSize, lineHeightFactor);
-    const textHeight = fit.lines.length * fit.lineHeight;
-    const startY = topY + (maxHeight - textHeight) / 2 + fit.lineHeight * 0.75;
+    const lineHeightCm = (fontSize: number) => fontSize * 0.0352778 * lineHeightFactor;
 
-    doc.setFontSize(fit.fontSize);
-    fit.lines.forEach((line, index) => {
-        doc.text(line, centerX, startY + index * fit.lineHeight, { align: 'center' });
-    });
+    for (let fontSize = initialFontSize; fontSize >= minFontSize; fontSize -= 0.2) {
+        doc.setFontSize(fontSize);
+        const linesPerText = texts.map((text) => doc.splitTextToSize(text, maxWidth) as string[]);
+        const lineHeight = lineHeightCm(fontSize);
+
+        const allFit = linesPerText.every((lines, index) => lines.length * lineHeight <= maxHeights[index]);
+        if (allFit) {
+            return { fontSize, lineHeight, linesPerText };
+        }
+    }
+
+    doc.setFontSize(minFontSize);
+    const linesPerText = texts.map((text) => doc.splitTextToSize(text, maxWidth) as string[]);
+    return {
+        fontSize: minFontSize,
+        lineHeight: lineHeightCm(minFontSize),
+        linesPerText,
+    };
 }
 
 function drawCanastillaLabel(doc: jsPDF, label: CanastillaLabelData, logoBase64: string, frameX: number, frameY: number) {
@@ -151,48 +161,44 @@ function drawCanastillaLabel(doc: jsPDF, label: CanastillaLabelData, logoBase64:
     const contentTopY = bottomBoxY + bottomPadding;
     const contentMaxWidth = bottomBoxWidth - 0.3;
 
-    const projectAreaHeight = 0.43;
-    const planchasAreaHeight = 0.56;
-    const yearAreaHeight = 0.2;
+    const contentHeight = bottomBoxHeight - bottomPadding * 2;
+    const rowAreaHeight = contentHeight / 3;
+
+    const projectAreaHeight = rowAreaHeight;
+    const planchasAreaHeight = rowAreaHeight;
+    const yearAreaHeight = rowAreaHeight;
 
     const projectAreaY = contentTopY;
     const planchasAreaY = projectAreaY + projectAreaHeight;
     const yearAreaY = planchasAreaY + planchasAreaHeight;
 
-    doc.setFont('helvetica', 'normal');
-    drawFittedCenteredText(
-        doc,
-        proyecto,
-        bottomBoxX + bottomBoxWidth / 2,
-        projectAreaY,
-        contentMaxWidth,
-        projectAreaHeight,
-        6.2,
-        4.6
-    );
-
+    const bottomTexts = [proyecto, `Planchas: ${planchas}`, `Año ${anio}`];
     doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'strong');
-    drawFittedCenteredText(
+    const sharedFit = fitTextsToSharedFont(
         doc,
-        `Planchas: ${planchas}`,
-        bottomBoxX + bottomBoxWidth / 2,
-        planchasAreaY,
+        bottomTexts,
         contentMaxWidth,
-        planchasAreaHeight,
-        6.8,
-        4.0
+        [projectAreaHeight, planchasAreaHeight, yearAreaHeight],
+        14,
+        5,
+        0.9
     );
 
-    drawFittedCenteredText(
-        doc,
-        `Año ${anio}`,
-        bottomBoxX + bottomBoxWidth / 2,
-        yearAreaY,
-        contentMaxWidth,
-        yearAreaHeight,
-        6.8,
-        4.0
-    );
+    const rowTopYs = [projectAreaY, planchasAreaY, yearAreaY];
+    doc.setFontSize(sharedFit.fontSize);
+    sharedFit.linesPerText.forEach((lines, rowIndex) => {
+        const textHeight = lines.length * sharedFit.lineHeight;
+        const textStartY =
+            rowTopYs[rowIndex] +
+            ([projectAreaHeight, planchasAreaHeight, yearAreaHeight][rowIndex] - textHeight) / 2 +
+            sharedFit.lineHeight * 0.82;
+
+        lines.forEach((line, lineIndex) => {
+            doc.text(line, bottomBoxX + bottomBoxWidth / 2, textStartY + lineIndex * sharedFit.lineHeight, {
+                align: 'center',
+            });
+        });
+    });
 }
 
 export async function generateCanastillasPDF(labels: CanastillaLabelData[]): Promise<jsPDF> {
