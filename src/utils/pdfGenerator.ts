@@ -262,6 +262,8 @@ function drawRotulo(
   // Primera línea en la misma línea que el título
   if (observacionesLines.length > 0) {
     doc.text(observacionesLines[0], observacionesX, yPos);
+    const firstLineWidth = doc.getTextWidth(observacionesLines[0]);
+    doc.line(observacionesX, yPos + 0.05, observacionesX + firstLineWidth, yPos + 0.05);
     yPos += 0.35;
   }
 
@@ -269,6 +271,8 @@ function drawRotulo(
   for (let i = 1; i < observacionesLines.length; i++) {
     if (yPos < startY + rotuloHeight - 0.3) {
       doc.text(observacionesLines[i], observacionesX, yPos);
+      const lineWidth = doc.getTextWidth(observacionesLines[i]);
+      doc.line(observacionesX, yPos + 0.05, observacionesX + lineWidth, yPos + 0.05);
       yPos += 0.35;
     }
   }
