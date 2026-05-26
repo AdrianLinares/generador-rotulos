@@ -62,7 +62,10 @@ export function DataTable({
             <tr>
               <th className="px-3 py-3 text-left font-semibold text-slate-700 w-8">#</th>
               {fields.map((field) => (
-                <th key={field} className="px-3 py-3 text-left font-semibold text-slate-700 min-w-[150px]">
+                <th
+                  key={field}
+                  className="px-3 py-3 text-left font-semibold text-slate-700 min-w-[150px]"
+                >
                   {FIELD_LABELS[field]}
                 </th>
               ))}
@@ -75,7 +78,9 @@ export function DataTable({
                 <td className="px-3 py-2 text-slate-500">{index + 1}</td>
                 {fields.map((field) => (
                   <td key={field} className="px-3 py-2">
-                    {field === 'localizacion' || field === 'observaciones' || field === 'contratoProyecto' ? (
+                    {field === 'localizacion' ||
+                    field === 'observaciones' ||
+                    field === 'contratoProyecto' ? (
                       <Textarea
                         value={row[field]}
                         onChange={(e) => onUpdateCell(row.id, field, e.target.value)}

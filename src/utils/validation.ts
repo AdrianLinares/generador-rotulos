@@ -1,4 +1,10 @@
-import { RotuloData, ValidationResult, ValidationError, REQUIRED_FIELDS, FIELD_LABELS } from '@/types/rotulo';
+import {
+  RotuloData,
+  ValidationResult,
+  ValidationError,
+  REQUIRED_FIELDS,
+  FIELD_LABELS,
+} from '@/types/rotulo';
 
 /**
  * Valida los datos de un rótulo

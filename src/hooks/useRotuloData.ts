@@ -4,9 +4,7 @@ import { parseExcelData } from '@/utils/excelParser';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useRotuloData() {
-  const [rows, setRows] = useState<TableRow[]>([
-    { ...EMPTY_ROTULO, id: uuidv4() },
-  ]);
+  const [rows, setRows] = useState<TableRow[]>([{ ...EMPTY_ROTULO, id: uuidv4() }]);
   const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
 
   // Agregar una nueva fila vacía
@@ -25,11 +23,7 @@ export function useRotuloData() {
 
   // Actualizar una celda específica
   const updateCell = useCallback((id: string, field: keyof RotuloData, value: string) => {
-    setRows((prev) =>
-      prev.map((row) =>
-        row.id === id ? { ...row, [field]: value } : row
-      )
-    );
+    setRows((prev) => prev.map((row) => (row.id === id ? { ...row, [field]: value } : row)));
   }, []);
 
   // Limpiar toda la tabla
@@ -62,9 +56,12 @@ export function useRotuloData() {
     setCurrentPreviewIndex((prev) => Math.max(prev - 1, 0));
   }, []);
 
-  const goToPreview = useCallback((index: number) => {
-    setCurrentPreviewIndex(Math.max(0, Math.min(index, rows.length - 1)));
-  }, [rows.length]);
+  const goToPreview = useCallback(
+    (index: number) => {
+      setCurrentPreviewIndex(Math.max(0, Math.min(index, rows.length - 1)));
+    },
+    [rows.length]
+  );
 
   return {
     rows,

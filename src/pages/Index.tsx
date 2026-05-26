@@ -57,7 +57,9 @@ export default function Index() {
   } = useCanastillaData();
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(new Map());
+  const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(
+    new Map()
+  );
   const [canastillaValidationResults, setCanastillaValidationResults] = useState<
     Map<number, CanastillaValidationResult>
   >(new Map());
@@ -149,19 +151,21 @@ export default function Index() {
   const handleLoadSample = () => {
     const sampleData = generateSampleData();
     const sampleText = sampleData
-      .map((r) => [
-        r.igm,
-        r.idMuestra,
-        r.plancha,
-        r.geologoColector,
-        r.localizacion,
-        r.datum,
-        r.x,
-        r.y,
-        r.observaciones,
-        r.unidadFormacion,
-        r.contratoProyecto,
-      ].join('\t'))
+      .map((r) =>
+        [
+          r.igm,
+          r.idMuestra,
+          r.plancha,
+          r.geologoColector,
+          r.localizacion,
+          r.datum,
+          r.x,
+          r.y,
+          r.observaciones,
+          r.unidadFormacion,
+          r.contratoProyecto,
+        ].join('\t')
+      )
       .join('\n');
     pasteFromExcel(sampleText);
     toast.success('Datos de ejemplo cargados');
@@ -305,9 +309,13 @@ export default function Index() {
           <CardContent className="space-y-6">
             {/* Controles de navegación */}
             <NavigationControls
-              currentIndex={labelType === 'muestra' ? currentPreviewIndex : currentCanastillaPreviewIndex}
+              currentIndex={
+                labelType === 'muestra' ? currentPreviewIndex : currentCanastillaPreviewIndex
+              }
               totalCount={labelType === 'muestra' ? rows.length : canastillaLabels.length}
-              onPrevious={labelType === 'muestra' ? goToPreviousPreview : goToPreviousCanastillaPreview}
+              onPrevious={
+                labelType === 'muestra' ? goToPreviousPreview : goToPreviousCanastillaPreview
+              }
               onNext={labelType === 'muestra' ? goToNextPreview : goToNextCanastillaPreview}
               onGoTo={labelType === 'muestra' ? goToPreview : goToCanastillaPreview}
             />
@@ -325,8 +333,9 @@ export default function Index() {
                 Filas válidas para canastilla:{' '}
                 <span className="font-semibold">
                   {
-                    Array.from(canastillaValidationResults.values()).filter((result) => result.isValid)
-                      .length
+                    Array.from(canastillaValidationResults.values()).filter(
+                      (result) => result.isValid
+                    ).length
                   }
                 </span>{' '}
                 de <span className="font-semibold">{canastillaValidationResults.size}</span>.
@@ -338,8 +347,8 @@ export default function Index() {
             {labelType === 'canastilla' && <CanastillaPreview canastilla={previewCanastilla} />}
             {labelType === 'canastilla' && !currentCanastilla && (
               <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center text-slate-600">
-                No hay canastillas agrupadas para vista previa. Verifique que CAJA sea un numero entero y
-                que los campos requeridos esten completos.
+                No hay canastillas agrupadas para vista previa. Verifique que CAJA sea un numero
+                entero y que los campos requeridos esten completos.
               </div>
             )}
           </CardContent>
@@ -383,12 +392,8 @@ export default function Index() {
             </div>
 
             <div className="mt-6 text-center text-sm text-slate-600">
-              <p>
-                El PDF se generará en formato carta (8.5" × 11").
-              </p>
-              <p className="mt-1">
-                Solo se incluirán los rótulos que pasen la validación.
-              </p>
+              <p>El PDF se generará en formato carta (8.5" × 11").</p>
+              <p className="mt-1">Solo se incluirán los rótulos que pasen la validación.</p>
             </div>
           </CardContent>
         </Card>

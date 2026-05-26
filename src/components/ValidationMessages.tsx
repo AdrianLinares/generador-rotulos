@@ -7,10 +7,7 @@ interface ValidationMessagesProps {
   currentIndex: number;
 }
 
-export function ValidationMessages({
-  validationResults,
-  currentIndex,
-}: ValidationMessagesProps) {
+export function ValidationMessages({ validationResults, currentIndex }: ValidationMessagesProps) {
   const currentResult = validationResults.get(currentIndex);
 
   if (!currentResult) return null;

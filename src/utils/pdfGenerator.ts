@@ -55,7 +55,9 @@ function drawRotulo(
     doc.text('LITOTECA', startX + rotuloWidth / 2, yPos + 0.3, { align: 'center' });
     doc.setFontSize(7);
     doc.setFont('helvetica', 'normal');
-    doc.text('SERVICIO GEOLÓGICO COLOMBIANO', startX + rotuloWidth / 2, yPos + 0.6, { align: 'center' });
+    doc.text('SERVICIO GEOLÓGICO COLOMBIANO', startX + rotuloWidth / 2, yPos + 0.6, {
+      align: 'center',
+    });
     yPos += 1.2;
   }
 
@@ -135,7 +137,7 @@ function drawRotulo(
 
   yPos += 0.4;
 
-  // UNIDAD O FORMACIÓN - en la misma línea
+  // UNIDAD O FORMACIÓN - con wrapping para evitar desbordamiento
   doc.setFont('helvetica', 'bold');
   doc.text('UNIDAD O FORMACIÓN:', leftMargin, yPos);
   const unidadLabelWidth = doc.getTextWidth('UNIDAD O FORMACIÓN:');
@@ -143,12 +145,26 @@ function drawRotulo(
   const unidadText = rotulo.unidadFormacion || '';
   const unidadSpaceWidth = doc.getTextWidth('  ');
   const unidadX = leftMargin + unidadLabelWidth + unidadSpaceWidth;
-  doc.text(unidadText, unidadX, yPos);
-  // Subrayar UNIDAD O FORMACIÓN
-  const unidadWidth = doc.getTextWidth(unidadText);
-  doc.line(unidadX, yPos + 0.05, unidadX + unidadWidth, yPos + 0.05);
+  const availableWidthUnidad = contentWidth - (unidadLabelWidth + unidadSpaceWidth);
+  const unidadLines = doc.splitTextToSize(unidadText, availableWidthUnidad);
 
-  yPos += 0.4;
+  // Primera línea en la misma línea que el título
+  if (unidadLines.length > 0) {
+    doc.text(unidadLines[0], unidadX, yPos);
+    const firstLineWidth = doc.getTextWidth(unidadLines[0]);
+    doc.line(unidadX, yPos + 0.05, unidadX + firstLineWidth, yPos + 0.05);
+    yPos += 0.35;
+  }
+
+  // Líneas adicionales con sangría
+  for (let i = 1; i < unidadLines.length; i++) {
+    doc.text(unidadLines[i], unidadX, yPos);
+    const lineWidth = doc.getTextWidth(unidadLines[i]);
+    doc.line(unidadX, yPos + 0.05, unidadX + lineWidth, yPos + 0.05);
+    yPos += 0.35;
+  }
+
+  yPos += 0.05;
 
   // COORDENADA: X e Y
   doc.setFont('helvetica', 'bold');
@@ -203,7 +219,7 @@ function drawRotulo(
 
   yPos += 0.05;
 
-  // GEÓLOGO O COLECTOR - en la misma línea
+  // GEÓLOGO O COLECTOR - con wrapping para evitar desbordamiento
   doc.setFont('helvetica', 'bold');
   doc.text('GEÓLOGO O COLECTOR:', leftMargin, yPos);
   const geologoLabelWidth = doc.getTextWidth('GEÓLOGO O COLECTOR:');
@@ -211,12 +227,26 @@ function drawRotulo(
   const geologoText = rotulo.geologoColector || '';
   const geologoSpaceWidth = doc.getTextWidth('  ');
   const geologoX = leftMargin + geologoLabelWidth + geologoSpaceWidth;
-  doc.text(geologoText, geologoX, yPos);
-  // Subrayar
-  const geologoWidth = doc.getTextWidth(geologoText);
-  doc.line(geologoX, yPos + 0.05, geologoX + geologoWidth, yPos + 0.05);
+  const availableWidthGeologo = contentWidth - (geologoLabelWidth + geologoSpaceWidth);
+  const geologoLines = doc.splitTextToSize(geologoText, availableWidthGeologo);
 
-  yPos += 0.4;
+  // Primera línea en la misma línea que el título
+  if (geologoLines.length > 0) {
+    doc.text(geologoLines[0], geologoX, yPos);
+    const firstLineWidth = doc.getTextWidth(geologoLines[0]);
+    doc.line(geologoX, yPos + 0.05, geologoX + firstLineWidth, yPos + 0.05);
+    yPos += 0.35;
+  }
+
+  // Líneas adicionales con sangría
+  for (let i = 1; i < geologoLines.length; i++) {
+    doc.text(geologoLines[i], geologoX, yPos);
+    const lineWidth = doc.getTextWidth(geologoLines[i]);
+    doc.line(geologoX, yPos + 0.05, geologoX + lineWidth, yPos + 0.05);
+    yPos += 0.35;
+  }
+
+  yPos += 0.05;
 
   // OBSERVACIONES
   doc.setFont('helvetica', 'bold');
@@ -280,8 +310,8 @@ export async function generateRotulosPDF(rotulos: RotuloData[]): Promise<jsPDF> 
   const verticalGap = 0.5; // espacio entre filas
 
   // Calcular el ancho y alto total de la cuadrícula
-  const gridWidth = (rotuloWidth * cols) + (horizontalGap * (cols - 1));
-  const gridHeight = (rotuloHeight * rows) + (verticalGap * (rows - 1));
+  const gridWidth = rotuloWidth * cols + horizontalGap * (cols - 1);
+  const gridHeight = rotuloHeight * rows + verticalGap * (rows - 1);
 
   // Calcular márgenes para centrar la cuadrícula
   const marginLeft = (pageWidth - gridWidth) / 2;
@@ -302,8 +332,8 @@ export async function generateRotulosPDF(rotulos: RotuloData[]): Promise<jsPDF> 
     const row = Math.floor(positionInPage / cols);
 
     // Calcular posición X e Y para este rótulo
-    const startX = marginLeft + (col * (rotuloWidth + horizontalGap));
-    const startY = marginTop + (row * (rotuloHeight + verticalGap));
+    const startX = marginLeft + col * (rotuloWidth + horizontalGap);
+    const startY = marginTop + row * (rotuloHeight + verticalGap);
 
     // Dibujar el rótulo en la posición calculada
     drawRotulo(

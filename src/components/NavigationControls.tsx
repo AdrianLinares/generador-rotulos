@@ -20,12 +20,7 @@ export function NavigationControls({
 
   return (
     <div className="flex items-center justify-center gap-4">
-      <Button
-        onClick={onPrevious}
-        disabled={currentIndex === 0}
-        variant="outline"
-        size="sm"
-      >
+      <Button onClick={onPrevious} disabled={currentIndex === 0} variant="outline" size="sm">
         <ChevronLeft className="w-4 h-4 mr-1" />
         Anterior
       </Button>

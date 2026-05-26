@@ -24,7 +24,10 @@ export function RotuloPreview({ rotulo }: RotuloPreviewProps) {
           {/* CONTRATO, PROYECTO O CONVENIO */}
           <div>
             <div className="font-bold leading-tight">CONTRATO, PROYECTO O CONVENIO:</div>
-            <div className="underline leading-tight break-words overflow-hidden" style={{ maxHeight: '32px' }}>
+            <div
+              className="underline leading-tight break-words overflow-hidden"
+              style={{ maxHeight: '32px' }}
+            >
               {rotulo.contratoProyecto || '—'}
             </div>
           </div>
@@ -33,11 +36,15 @@ export function RotuloPreview({ rotulo }: RotuloPreviewProps) {
           <div className="flex gap-3">
             <div className="flex-1 min-w-0 grid grid-cols-[auto_1fr] gap-[2ch]">
               <span className="font-bold">ID MUESTRA:</span>
-              <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>{rotulo.idMuestra || '—'}</span>
+              <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>
+                {rotulo.idMuestra || '—'}
+              </span>
             </div>
             <div className="flex-shrink-0 grid grid-cols-[auto_1fr] gap-[2ch]">
               <span className="font-bold">IGM:</span>
-              <span className="break-words overflow-hidden" style={{ maxHeight: '32px' }}>{rotulo.igm || '—'}</span>
+              <span className="break-words overflow-hidden" style={{ maxHeight: '32px' }}>
+                {rotulo.igm || '—'}
+              </span>
             </div>
           </div>
 
@@ -45,18 +52,24 @@ export function RotuloPreview({ rotulo }: RotuloPreviewProps) {
           <div className="flex gap-3">
             <div className="grid grid-cols-[auto_1fr] gap-[2ch]">
               <span className="font-bold">PLANCHA:</span>
-              <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>{rotulo.plancha || '—'}</span>
+              <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>
+                {rotulo.plancha || '—'}
+              </span>
             </div>
             <div className="grid grid-cols-[auto_1fr] gap-[2ch]">
               <span className="font-bold">DATUM:</span>
-              <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>{rotulo.datum || '—'}</span>
+              <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>
+                {rotulo.datum || '—'}
+              </span>
             </div>
           </div>
 
           {/* UNIDAD O FORMACIÓN - en la misma línea */}
           <div className="leading-tight grid grid-cols-[auto_1fr] gap-[2ch]">
             <span className="font-bold">UNIDAD O FORMACIÓN:</span>
-            <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>{rotulo.unidadFormacion || '—'}</span>
+            <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>
+              {rotulo.unidadFormacion || '—'}
+            </span>
           </div>
 
           {/* COORDENADA */}
@@ -65,11 +78,21 @@ export function RotuloPreview({ rotulo }: RotuloPreviewProps) {
             <div className="flex gap-3">
               <div>
                 <span className="font-bold">X:</span>
-                <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>{rotulo.x || '—'}</span>
+                <span
+                  className="underline break-words overflow-hidden"
+                  style={{ maxHeight: '32px' }}
+                >
+                  {rotulo.x || '—'}
+                </span>
               </div>
               <div>
                 <span className="font-bold">Y:</span>
-                <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>{rotulo.y || '—'}</span>
+                <span
+                  className="underline break-words overflow-hidden"
+                  style={{ maxHeight: '32px' }}
+                >
+                  {rotulo.y || '—'}
+                </span>
               </div>
             </div>
           </div>
@@ -77,19 +100,25 @@ export function RotuloPreview({ rotulo }: RotuloPreviewProps) {
           {/* LOCALIZACIÓN */}
           <div className="leading-tight grid grid-cols-[auto_1fr] gap-[2ch]">
             <span className="font-bold">LOCALIZACIÓN:</span>
-            <span className="underline break-words overflow-hidden" style={{ maxHeight: '48px' }}>{rotulo.localizacion || '—'}</span>
+            <span className="underline break-words overflow-hidden" style={{ maxHeight: '48px' }}>
+              {rotulo.localizacion || '—'}
+            </span>
           </div>
 
           {/* GEÓLOGO O COLECTOR - en la misma línea */}
           <div className="leading-tight grid grid-cols-[auto_1fr] gap-[2ch]">
             <span className="font-bold">GEÓLOGO O COLECTOR:</span>
-            <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>{rotulo.geologoColector || '—'}</span>
+            <span className="underline break-words overflow-hidden" style={{ maxHeight: '32px' }}>
+              {rotulo.geologoColector || '—'}
+            </span>
           </div>
 
           {/* OBSERVACIONES */}
           <div className="leading-tight grid grid-cols-[auto_1fr] gap-[2ch]">
             <span className="font-bold">OBSERVACIONES:</span>
-            <span className="text-[10px] break-words" style={{ maxHeight: '48px' }}>{rotulo.observaciones || '—'}</span>
+            <span className="text-[10px] break-words" style={{ maxHeight: '48px' }}>
+              {rotulo.observaciones || '—'}
+            </span>
           </div>
         </div>
       </div>

@@ -1,131 +1,142 @@
 import { useCallback, useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { CanastillaInput, CanastillaLabelData, CanastillaTableRow, EMPTY_CANASTILLA } from '@/types/canastilla';
+import {
+  CanastillaInput,
+  CanastillaLabelData,
+  CanastillaTableRow,
+  EMPTY_CANASTILLA,
+} from '@/types/canastilla';
 import { groupCanastillaByCaja } from '@/utils/canastilla';
 
 function parseCanastillaExcelData(pastedText: string): CanastillaInput[] {
-    const lines = pastedText.trim().split('\n');
-    const rows: CanastillaInput[] = [];
+  const lines = pastedText.trim().split('\n');
+  const rows: CanastillaInput[] = [];
 
-    lines.forEach((line) => {
-        let cells = line.split('\t');
-        if (cells.length === 1) {
-            cells = line.split(',');
-        }
+  lines.forEach((line) => {
+    let cells = line.split('\t');
+    if (cells.length === 1) {
+      cells = line.split(',');
+    }
 
-        cells = cells.map((cell) => cell.trim().replace(/^"|"$/g, ''));
+    cells = cells.map((cell) => cell.trim().replace(/^"|"$/g, ''));
 
-        if (cells.length >= 5) {
-            rows.push({
-                caja: cells[0] || '',
-                idMuestra: cells[1] || '',
-                contratoProyecto: cells[2] || '',
-                anio: cells[3] || '',
-                plancha: cells[4] || '',
-            });
-        }
-    });
+    if (cells.length >= 5) {
+      rows.push({
+        caja: cells[0] || '',
+        idMuestra: cells[1] || '',
+        contratoProyecto: cells[2] || '',
+        anio: cells[3] || '',
+        plancha: cells[4] || '',
+      });
+    }
+  });
 
-    return rows;
+  return rows;
 }
 
 export function generateSampleCanastillaData(): CanastillaInput[] {
-    return [
-        {
-            caja: '10',
-            idMuestra: 'APN144',
-            contratoProyecto: 'Investigacion en Cartografia Geologica y Geomorfologica en el Territorio Colombiano',
-            anio: '2024',
-            plancha: '560IVB',
-        },
-        {
-            caja: '10',
-            idMuestra: 'APN763A',
-            contratoProyecto: 'Investigacion en Cartografia Geologica y Geomorfologica en el Territorio Colombiano',
-            anio: '2024',
-            plancha: '560IID',
-        },
-        {
-            caja: '10',
-            idMuestra: 'APN0774',
-            contratoProyecto: 'Investigacion en Cartografia Geologica y Geomorfologica en el Territorio Colombiano',
-            anio: '2024',
-            plancha: '560IIC',
-        },
-    ];
+  return [
+    {
+      caja: '10',
+      idMuestra: 'APN144',
+      contratoProyecto:
+        'Investigacion en Cartografia Geologica y Geomorfologica en el Territorio Colombiano',
+      anio: '2024',
+      plancha: '560IVB',
+    },
+    {
+      caja: '10',
+      idMuestra: 'APN763A',
+      contratoProyecto:
+        'Investigacion en Cartografia Geologica y Geomorfologica en el Territorio Colombiano',
+      anio: '2024',
+      plancha: '560IID',
+    },
+    {
+      caja: '10',
+      idMuestra: 'APN0774',
+      contratoProyecto:
+        'Investigacion en Cartografia Geologica y Geomorfologica en el Territorio Colombiano',
+      anio: '2024',
+      plancha: '560IIC',
+    },
+  ];
 }
 
 export function useCanastillaData() {
-    const [rows, setRows] = useState<CanastillaTableRow[]>([{ ...EMPTY_CANASTILLA, id: uuidv4() }]);
-    const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
+  const [rows, setRows] = useState<CanastillaTableRow[]>([{ ...EMPTY_CANASTILLA, id: uuidv4() }]);
+  const [currentPreviewIndex, setCurrentPreviewIndex] = useState(0);
 
-    const addRow = useCallback(() => {
-        setRows((prev) => [...prev, { ...EMPTY_CANASTILLA, id: uuidv4() }]);
-    }, []);
+  const addRow = useCallback(() => {
+    setRows((prev) => [...prev, { ...EMPTY_CANASTILLA, id: uuidv4() }]);
+  }, []);
 
-    const removeRow = useCallback((id: string) => {
-        setRows((prev) => {
-            const newRows = prev.filter((row) => row.id !== id);
-            return newRows.length === 0 ? [{ ...EMPTY_CANASTILLA, id: uuidv4() }] : newRows;
-        });
-    }, []);
+  const removeRow = useCallback((id: string) => {
+    setRows((prev) => {
+      const newRows = prev.filter((row) => row.id !== id);
+      return newRows.length === 0 ? [{ ...EMPTY_CANASTILLA, id: uuidv4() }] : newRows;
+    });
+  }, []);
 
-    const updateCell = useCallback((id: string, field: keyof CanastillaInput, value: string) => {
-        setRows((prev) => prev.map((row) => (row.id === id ? { ...row, [field]: value } : row)));
-    }, []);
+  const updateCell = useCallback((id: string, field: keyof CanastillaInput, value: string) => {
+    setRows((prev) => prev.map((row) => (row.id === id ? { ...row, [field]: value } : row)));
+  }, []);
 
-    const clearAll = useCallback(() => {
-        setRows([{ ...EMPTY_CANASTILLA, id: uuidv4() }]);
-        setCurrentPreviewIndex(0);
-    }, []);
+  const clearAll = useCallback(() => {
+    setRows([{ ...EMPTY_CANASTILLA, id: uuidv4() }]);
+    setCurrentPreviewIndex(0);
+  }, []);
 
-    const pasteFromExcel = useCallback((pastedText: string) => {
-        const parsed = parseCanastillaExcelData(pastedText);
-        if (parsed.length > 0) {
-            setRows(parsed.map((row) => ({ ...row, id: uuidv4() })));
-            setCurrentPreviewIndex(0);
-        }
-    }, []);
+  const pasteFromExcel = useCallback((pastedText: string) => {
+    const parsed = parseCanastillaExcelData(pastedText);
+    if (parsed.length > 0) {
+      setRows(parsed.map((row) => ({ ...row, id: uuidv4() })));
+      setCurrentPreviewIndex(0);
+    }
+  }, []);
 
-    const loadSampleData = useCallback(() => {
-        const sample = generateSampleCanastillaData();
-        setRows(sample.map((row) => ({ ...row, id: uuidv4() })));
-        setCurrentPreviewIndex(0);
-    }, []);
+  const loadSampleData = useCallback(() => {
+    const sample = generateSampleCanastillaData();
+    setRows(sample.map((row) => ({ ...row, id: uuidv4() })));
+    setCurrentPreviewIndex(0);
+  }, []);
 
-    const getCanastillaInputData = useCallback((): CanastillaInput[] => {
-        return rows.map(({ id, ...row }) => row);
-    }, [rows]);
+  const getCanastillaInputData = useCallback((): CanastillaInput[] => {
+    return rows.map(({ id, ...row }) => row);
+  }, [rows]);
 
-    const labels = useMemo<CanastillaLabelData[]>(() => {
-        return groupCanastillaByCaja(getCanastillaInputData());
-    }, [getCanastillaInputData]);
+  const labels = useMemo<CanastillaLabelData[]>(() => {
+    return groupCanastillaByCaja(getCanastillaInputData());
+  }, [getCanastillaInputData]);
 
-    const goToNextPreview = useCallback(() => {
-        setCurrentPreviewIndex((prev) => Math.min(prev + 1, Math.max(0, labels.length - 1)));
-    }, [labels.length]);
+  const goToNextPreview = useCallback(() => {
+    setCurrentPreviewIndex((prev) => Math.min(prev + 1, Math.max(0, labels.length - 1)));
+  }, [labels.length]);
 
-    const goToPreviousPreview = useCallback(() => {
-        setCurrentPreviewIndex((prev) => Math.max(prev - 1, 0));
-    }, []);
+  const goToPreviousPreview = useCallback(() => {
+    setCurrentPreviewIndex((prev) => Math.max(prev - 1, 0));
+  }, []);
 
-    const goToPreview = useCallback((index: number) => {
-        setCurrentPreviewIndex(Math.max(0, Math.min(index, Math.max(0, labels.length - 1))));
-    }, [labels.length]);
+  const goToPreview = useCallback(
+    (index: number) => {
+      setCurrentPreviewIndex(Math.max(0, Math.min(index, Math.max(0, labels.length - 1))));
+    },
+    [labels.length]
+  );
 
-    return {
-        rows,
-        labels,
-        currentPreviewIndex,
-        addRow,
-        removeRow,
-        updateCell,
-        clearAll,
-        pasteFromExcel,
-        loadSampleData,
-        getCanastillaInputData,
-        goToNextPreview,
-        goToPreviousPreview,
-        goToPreview,
-    };
+  return {
+    rows,
+    labels,
+    currentPreviewIndex,
+    addRow,
+    removeRow,
+    updateCell,
+    clearAll,
+    pasteFromExcel,
+    loadSampleData,
+    getCanastillaInputData,
+    goToNextPreview,
+    goToPreviousPreview,
+    goToPreview,
+  };
 }
