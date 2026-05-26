@@ -1,6 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { EMPTY_ROTULO, FIELD_LABELS, REQUIRED_FIELDS, RotuloData, ValidationResult } from '@/types/rotulo';
-import { EMPTY_CANASTILLA, CANASTILLA_FIELD_LABELS, CANASTILLA_REQUIRED_FIELDS } from '@/types/canastilla';
+import {
+  EMPTY_ROTULO,
+  FIELD_LABELS,
+  REQUIRED_FIELDS,
+  RotuloData,
+  ValidationResult,
+} from '@/types/rotulo';
+import {
+  EMPTY_CANASTILLA,
+  CANASTILLA_FIELD_LABELS,
+  CANASTILLA_REQUIRED_FIELDS,
+} from '@/types/canastilla';
 
 describe('Rotulo types and constants', () => {
   describe('EMPTY_ROTULO', () => {
@@ -13,8 +23,17 @@ describe('Rotulo types and constants', () => {
     it('has all RotuloData keys', () => {
       const keys = Object.keys(EMPTY_ROTULO) as (keyof RotuloData)[];
       const expectedKeys: (keyof RotuloData)[] = [
-        'igm', 'idMuestra', 'plancha', 'geologoColector', 'localizacion',
-        'datum', 'x', 'y', 'observaciones', 'unidadFormacion', 'contratoProyecto',
+        'igm',
+        'idMuestra',
+        'plancha',
+        'geologoColector',
+        'localizacion',
+        'datum',
+        'x',
+        'y',
+        'observaciones',
+        'unidadFormacion',
+        'contratoProyecto',
       ];
       expect(keys.sort()).toEqual(expectedKeys.sort());
     });

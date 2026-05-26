@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  validateRotulo,
-  validateRotulos,
-  hasValidRotulos,
-} from '@/utils/validation';
+import { validateRotulo, validateRotulos, hasValidRotulos } from '@/utils/validation';
 import { EMPTY_ROTULO, REQUIRED_FIELDS } from '@/types/rotulo';
 
 describe('validateRotulo', () => {
@@ -145,7 +141,19 @@ describe('validateRotulos', () => {
 
 describe('hasValidRotulos', () => {
   it('returns true if at least one rotulo is valid', () => {
-    const rotulos = [EMPTY_ROTULO, { ...EMPTY_ROTULO, idMuestra: 'A', plancha: 'P', geologoColector: 'G', datum: 'D', x: '1', y: '1', contratoProyecto: 'C' }];
+    const rotulos = [
+      EMPTY_ROTULO,
+      {
+        ...EMPTY_ROTULO,
+        idMuestra: 'A',
+        plancha: 'P',
+        geologoColector: 'G',
+        datum: 'D',
+        x: '1',
+        y: '1',
+        contratoProyecto: 'C',
+      },
+    ];
     expect(hasValidRotulos(rotulos)).toBe(true);
   });
 

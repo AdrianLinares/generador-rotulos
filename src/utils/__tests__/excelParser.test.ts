@@ -4,7 +4,8 @@ import { validateRotulo } from '@/utils/validation';
 
 describe('parseExcelData', () => {
   it('parses tab-separated values into rotulo data', () => {
-    const input = 'IGM001\tAMC1216\t18IVB\tAna Milena\tSector Florida\tMagna\t998909\t1697240\tobs\tFormación Girón\tContrato 123';
+    const input =
+      'IGM001\tAMC1216\t18IVB\tAna Milena\tSector Florida\tMagna\t998909\t1697240\tobs\tFormación Girón\tContrato 123';
     const result = parseExcelData(input);
     expect(result).toHaveLength(1);
     expect(result[0].igm).toBe('IGM001');

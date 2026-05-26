@@ -1,33 +1,6 @@
 import jsPDF from 'jspdf';
 import { RotuloData } from '@/types/rotulo';
-import { getImageBase64 } from '@/utils/pdfUtils';
-
-const ELLIPSIS = '...';
-
-/**
- * Trunca la última línea de un array de líneas, quitando 3 caracteres y agregando '...'
- * Asegura que el resultado no exceda el maxWidth disponible.
- */
-function truncateLastLine(lines: string[], maxWidth: number, doc: jsPDF): string[] {
-  if (lines.length === 0) return lines;
-  const result = [...lines];
-  const lastLine = result[result.length - 1];
-
-  if (lastLine.length > 3) {
-    let truncated = lastLine.slice(0, -3) + ELLIPSIS;
-    while (doc.getTextWidth(truncated) > maxWidth && truncated.length > ELLIPSIS.length) {
-      truncated = truncated.slice(0, -ELLIPSIS.length - 1) + ELLIPSIS;
-    }
-    result[result.length - 1] = truncated;
-  } else {
-    let truncated = lastLine + ELLIPSIS;
-    while (doc.getTextWidth(truncated) > maxWidth && truncated.length > ELLIPSIS.length) {
-      truncated = truncated.slice(0, -ELLIPSIS.length - 1) + ELLIPSIS;
-    }
-    result[result.length - 1] = truncated;
-  }
-  return result;
-}
+import { getImageBase64, truncateLastLine } from '@/utils/pdfUtils';
 
 /**
  * Dibuja un rótulo individual en una posición específica del PDF
@@ -83,7 +56,11 @@ function drawRotulo(
   const maxContratoLines = 2;
   const contratoLinesToRender =
     contratoLines.length > maxContratoLines
-      ? truncateLastLine(contratoLines.slice(0, maxContratoLines), contentWidth, doc)
+      ? truncateLastLine(
+          contratoLines.slice(0, maxContratoLines),
+          contentWidth,
+          doc.getTextWidth.bind(doc)
+        )
       : contratoLines;
   contratoLinesToRender.forEach((line: string) => {
     doc.text(line, leftMargin, yPos);
@@ -281,7 +258,11 @@ function drawRotulo(
   // Determinar líneas a renderizar, truncando con '...' si excede el espacio
   const observacionesToRender =
     observacionesLines.length > maxLines
-      ? truncateLastLine(observacionesLines.slice(0, maxLines), availableWidthObs, doc)
+      ? truncateLastLine(
+          observacionesLines.slice(0, maxLines),
+          availableWidthObs,
+          doc.getTextWidth.bind(doc)
+        )
       : observacionesLines;
 
   // Primera línea en la misma línea que el título

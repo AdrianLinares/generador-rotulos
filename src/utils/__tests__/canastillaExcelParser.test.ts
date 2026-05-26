@@ -14,10 +14,9 @@ describe('parseCanastillaExcelData', () => {
   });
 
   it('parses multiple lines', () => {
-    const input = [
-      '10\tAPN144\tContrato\t2024\t560IVB',
-      '10\tAPN763\tContrato\t2024\t560IID',
-    ].join('\n');
+    const input = ['10\tAPN144\tContrato\t2024\t560IVB', '10\tAPN763\tContrato\t2024\t560IID'].join(
+      '\n'
+    );
     const result = parseCanastillaExcelData(input);
     expect(result).toHaveLength(2);
     expect(result[1].idMuestra).toBe('APN763');

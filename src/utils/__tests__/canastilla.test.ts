@@ -87,7 +87,13 @@ describe('groupCanastillaByCaja', () => {
 
   it('trims whitespace from field values', () => {
     const rows: CanastillaInput[] = [
-      { caja: '10', idMuestra: '  A1  ', contratoProyecto: '  C1  ', anio: ' 2024 ', plancha: ' P1 ' },
+      {
+        caja: '10',
+        idMuestra: '  A1  ',
+        contratoProyecto: '  C1  ',
+        anio: ' 2024 ',
+        plancha: ' P1 ',
+      },
     ];
 
     const result = groupCanastillaByCaja(rows);
