@@ -3,6 +3,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CANASTILLA_FIELD_LABELS, CanastillaInput, CanastillaTableRow } from '@/types/canastilla';
 import { Clipboard, Plus, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface CanastillaDataTableProps {
   rows: CanastillaTableRow[];
@@ -31,9 +32,8 @@ export function CanastillaDataTable({
     try {
       const text = await navigator.clipboard.readText();
       onPasteFromExcel(text);
-    } catch (error) {
-      console.error('Error al pegar desde el portapapeles:', error);
-      alert('No se pudo acceder al portapapeles. Pegue manualmente en una celda.');
+    } catch {
+      toast.error('No se pudo acceder al portapapeles. Pegue manualmente en una celda.');
     }
   };
 

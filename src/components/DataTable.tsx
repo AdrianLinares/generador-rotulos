@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Trash2, Plus, Clipboard } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
+import { toast } from 'sonner';
 
 interface DataTableProps {
   rows: TableRow[];
@@ -23,9 +24,8 @@ export function DataTable({
     try {
       const text = await navigator.clipboard.readText();
       onPasteFromExcel(text);
-    } catch (err) {
-      console.error('Error al pegar desde el portapapeles:', err);
-      alert('No se pudo acceder al portapapeles. Por favor, pegue manualmente en una celda.');
+    } catch {
+      toast.error('No se pudo acceder al portapapeles. Pegue manualmente en una celda.');
     }
   };
 

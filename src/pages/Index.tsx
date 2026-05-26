@@ -25,6 +25,7 @@ type LabelType = 'muestra' | 'canastilla';
 
 export default function Index() {
   const [labelType, setLabelType] = useState<LabelType>('muestra');
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   const {
     rows,
@@ -178,16 +179,19 @@ export default function Index() {
 
   // Limpiar todo
   const handleClearAll = () => {
-    if (confirm('¿Está seguro de que desea limpiar todos los datos?')) {
-      if (labelType === 'muestra') {
-        clearAll();
-        setValidationResults(new Map());
-      } else {
-        clearCanastillaRows();
-        setCanastillaValidationResults(new Map());
-      }
-      toast.info('Tabla limpiada');
+    setShowClearConfirm(true);
+  };
+
+  const confirmClearAll = () => {
+    if (labelType === 'muestra') {
+      clearAll();
+      setValidationResults(new Map());
+    } else {
+      clearCanastillaRows();
+      setCanastillaValidationResults(new Map());
     }
+    toast.info('Tabla limpiada');
+    setShowClearConfirm(false);
   };
 
   const currentRotulo = rows[currentPreviewIndex];
@@ -397,6 +401,26 @@ export default function Index() {
             </div>
           </CardContent>
         </Card>
+
+        {/* Diálogo de confirmación para limpiar */}
+        {showClearConfirm && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm mx-4">
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">Limpiar datos</h3>
+              <p className="text-sm text-slate-600 mb-4">
+                ¿Está seguro de que desea limpiar todos los datos?
+              </p>
+              <div className="flex gap-3 justify-end">
+                <Button variant="outline" onClick={() => setShowClearConfirm(false)}>
+                  Cancelar
+                </Button>
+                <Button variant="destructive" onClick={confirmClearAll}>
+                  Limpiar
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,23 +1,32 @@
 import jsPDF from 'jspdf';
 import { RotuloData } from '@/types/rotulo';
+import { getImageBase64 } from '@/utils/pdfUtils';
+
+const ELLIPSIS = '...';
 
 /**
- * Convierte imagen a base64 para incluir en el PDF
+ * Trunca la última línea de un array de líneas, quitando 3 caracteres y agregando '...'
+ * Asegura que el resultado no exceda el maxWidth disponible.
  */
-async function getImageBase64(imagePath: string): Promise<string> {
-  try {
-    const response = await fetch(imagePath);
-    const blob = await response.blob();
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  } catch (error) {
-    console.error('Error loading image:', error);
-    return '';
+function truncateLastLine(lines: string[], maxWidth: number, doc: jsPDF): string[] {
+  if (lines.length === 0) return lines;
+  const result = [...lines];
+  const lastLine = result[result.length - 1];
+
+  if (lastLine.length > 3) {
+    let truncated = lastLine.slice(0, -3) + ELLIPSIS;
+    while (doc.getTextWidth(truncated) > maxWidth && truncated.length > ELLIPSIS.length) {
+      truncated = truncated.slice(0, -ELLIPSIS.length - 1) + ELLIPSIS;
+    }
+    result[result.length - 1] = truncated;
+  } else {
+    let truncated = lastLine + ELLIPSIS;
+    while (doc.getTextWidth(truncated) > maxWidth && truncated.length > ELLIPSIS.length) {
+      truncated = truncated.slice(0, -ELLIPSIS.length - 1) + ELLIPSIS;
+    }
+    result[result.length - 1] = truncated;
   }
+  return result;
 }
 
 /**
@@ -61,7 +70,7 @@ function drawRotulo(
     yPos += 1.2;
   }
 
-  // CONTRATO, PROYECTO O CONVENIO
+  // CONTRATO, PROYECTO O CONVENIO - con límite de líneas para no desbordar
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text('CONTRATO, PROYECTO O CONVENIO:', leftMargin, yPos);
@@ -70,9 +79,14 @@ function drawRotulo(
   doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
   const contratoLines = doc.splitTextToSize(rotulo.contratoProyecto || '', contentWidth);
-  contratoLines.forEach((line: string) => {
+  // Máximo 2 líneas para contrato (etiqueta + 2 líneas = ~1.05cm)
+  const maxContratoLines = 2;
+  const contratoLinesToRender =
+    contratoLines.length > maxContratoLines
+      ? truncateLastLine(contratoLines.slice(0, maxContratoLines), contentWidth, doc)
+      : contratoLines;
+  contratoLinesToRender.forEach((line: string) => {
     doc.text(line, leftMargin, yPos);
-    // Subrayar el texto del contrato
     const textWidth = doc.getTextWidth(line);
     doc.setLineWidth(0.01);
     doc.line(leftMargin, yPos + 0.05, leftMargin + textWidth, yPos + 0.05);
@@ -265,46 +279,23 @@ function drawRotulo(
   const maxLines = Math.max(1, Math.floor((maxYPos - yPos) / lineHeight));
 
   // Determinar líneas a renderizar, truncando con '...' si excede el espacio
-  let linesToRender: string[];
-  const overflow = observacionesLines.length > maxLines;
-  if (overflow && maxLines > 0) {
-    linesToRender = observacionesLines.slice(0, maxLines);
-    // Truncar la última línea: quitar 3 caracteres y agregar '...'
-    const lastLine = linesToRender[linesToRender.length - 1];
-    const ellipsis = '...';
-    if (lastLine.length > 3) {
-      let truncated = lastLine.slice(0, -3) + ellipsis;
-      // Asegurar que el truncado no exceda el ancho disponible
-      while (doc.getTextWidth(truncated) > availableWidthObs && truncated.length > ellipsis.length) {
-        truncated = truncated.slice(0, -ellipsis.length - 1) + ellipsis;
-      }
-      linesToRender[linesToRender.length - 1] = truncated;
-    } else {
-      linesToRender[linesToRender.length - 1] = lastLine.slice(0, lastLine.length) + ellipsis;
-      while (
-        doc.getTextWidth(linesToRender[linesToRender.length - 1]) > availableWidthObs &&
-        linesToRender[linesToRender.length - 1].length > ellipsis.length
-      ) {
-        linesToRender[linesToRender.length - 1] =
-          linesToRender[linesToRender.length - 1].slice(0, -ellipsis.length - 1) + ellipsis;
-      }
-    }
-  } else {
-    linesToRender = observacionesLines;
-  }
+  const observacionesToRender =
+    observacionesLines.length > maxLines
+      ? truncateLastLine(observacionesLines.slice(0, maxLines), availableWidthObs, doc)
+      : observacionesLines;
 
   // Primera línea en la misma línea que el título
-  if (linesToRender.length > 0) {
-    doc.text(linesToRender[0], observacionesX, yPos);
-    const firstLineWidth = doc.getTextWidth(linesToRender[0]);
+  if (observacionesToRender.length > 0) {
+    doc.text(observacionesToRender[0], observacionesX, yPos);
+    const firstLineWidth = doc.getTextWidth(observacionesToRender[0]);
     doc.line(observacionesX, yPos + 0.05, observacionesX + firstLineWidth, yPos + 0.05);
     yPos += 0.35;
   }
 
   // Líneas adicionales con sangría
-  for (let i = 1; i < linesToRender.length; i++) {
-    doc.text(linesToRender[i], observacionesX, yPos);
-    const lineWidth = doc.getTextWidth(linesToRender[i]);
+  for (let i = 1; i < observacionesToRender.length; i++) {
+    doc.text(observacionesToRender[i], observacionesX, yPos);
+    const lineWidth = doc.getTextWidth(observacionesToRender[i]);
     doc.line(observacionesX, yPos + 0.05, observacionesX + lineWidth, yPos + 0.05);
     yPos += 0.35;
   }

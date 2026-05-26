@@ -7,32 +7,7 @@ import {
   EMPTY_CANASTILLA,
 } from '@/types/canastilla';
 import { groupCanastillaByCaja } from '@/utils/canastilla';
-
-function parseCanastillaExcelData(pastedText: string): CanastillaInput[] {
-  const lines = pastedText.trim().split('\n');
-  const rows: CanastillaInput[] = [];
-
-  lines.forEach((line) => {
-    let cells = line.split('\t');
-    if (cells.length === 1) {
-      cells = line.split(',');
-    }
-
-    cells = cells.map((cell) => cell.trim().replace(/^"|"$/g, ''));
-
-    if (cells.length >= 5) {
-      rows.push({
-        caja: cells[0] || '',
-        idMuestra: cells[1] || '',
-        contratoProyecto: cells[2] || '',
-        anio: cells[3] || '',
-        plancha: cells[4] || '',
-      });
-    }
-  });
-
-  return rows;
-}
+import { parseCanastillaExcelData } from '@/utils/canastillaExcelParser';
 
 export function generateSampleCanastillaData(): CanastillaInput[] {
   return [

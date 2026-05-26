@@ -1,25 +1,9 @@
 import jsPDF from 'jspdf';
 import { CanastillaLabelData } from '@/types/canastilla';
 import { formatIdsMuestra, formatPlanchas } from '@/utils/canastilla';
+import { getImageBase64 } from '@/utils/pdfUtils';
 
 const ALPHANUMERIC_FONT_FAMILY = 'courier';
-
-async function getImageBase64(imagePath: string): Promise<string> {
-  try {
-    const response = await fetch(imagePath);
-    const blob = await response.blob();
-
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => resolve(reader.result as string);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  } catch (error) {
-    console.error('Error loading image:', error);
-    return '';
-  }
-}
 
 function fitTextToBox(
   doc: jsPDF,
