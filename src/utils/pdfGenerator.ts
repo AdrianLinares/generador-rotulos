@@ -259,22 +259,54 @@ function drawRotulo(
   const availableWidthObs = contentWidth - (observacionesLabelWidth + observacionesSpaceWidth);
   const observacionesLines = doc.splitTextToSize(observacionesText, availableWidthObs);
 
+  // Calcular cuántas líneas caben sin sobrepasar el borde del rótulo
+  const maxYPos = startY + rotuloHeight - 0.3;
+  const lineHeight = 0.35;
+  const maxLines = Math.max(1, Math.floor((maxYPos - yPos) / lineHeight));
+
+  // Determinar líneas a renderizar, truncando con '...' si excede el espacio
+  let linesToRender: string[];
+  const overflow = observacionesLines.length > maxLines;
+  if (overflow && maxLines > 0) {
+    linesToRender = observacionesLines.slice(0, maxLines);
+    // Truncar la última línea: quitar 3 caracteres y agregar '...'
+    const lastLine = linesToRender[linesToRender.length - 1];
+    const ellipsis = '...';
+    if (lastLine.length > 3) {
+      let truncated = lastLine.slice(0, -3) + ellipsis;
+      // Asegurar que el truncado no exceda el ancho disponible
+      while (doc.getTextWidth(truncated) > availableWidthObs && truncated.length > ellipsis.length) {
+        truncated = truncated.slice(0, -ellipsis.length - 1) + ellipsis;
+      }
+      linesToRender[linesToRender.length - 1] = truncated;
+    } else {
+      linesToRender[linesToRender.length - 1] = lastLine.slice(0, lastLine.length) + ellipsis;
+      while (
+        doc.getTextWidth(linesToRender[linesToRender.length - 1]) > availableWidthObs &&
+        linesToRender[linesToRender.length - 1].length > ellipsis.length
+      ) {
+        linesToRender[linesToRender.length - 1] =
+          linesToRender[linesToRender.length - 1].slice(0, -ellipsis.length - 1) + ellipsis;
+      }
+    }
+  } else {
+    linesToRender = observacionesLines;
+  }
+
   // Primera línea en la misma línea que el título
-  if (observacionesLines.length > 0) {
-    doc.text(observacionesLines[0], observacionesX, yPos);
-    const firstLineWidth = doc.getTextWidth(observacionesLines[0]);
+  if (linesToRender.length > 0) {
+    doc.text(linesToRender[0], observacionesX, yPos);
+    const firstLineWidth = doc.getTextWidth(linesToRender[0]);
     doc.line(observacionesX, yPos + 0.05, observacionesX + firstLineWidth, yPos + 0.05);
     yPos += 0.35;
   }
 
   // Líneas adicionales con sangría
-  for (let i = 1; i < observacionesLines.length; i++) {
-    if (yPos < startY + rotuloHeight - 0.3) {
-      doc.text(observacionesLines[i], observacionesX, yPos);
-      const lineWidth = doc.getTextWidth(observacionesLines[i]);
-      doc.line(observacionesX, yPos + 0.05, observacionesX + lineWidth, yPos + 0.05);
-      yPos += 0.35;
-    }
+  for (let i = 1; i < linesToRender.length; i++) {
+    doc.text(linesToRender[i], observacionesX, yPos);
+    const lineWidth = doc.getTextWidth(linesToRender[i]);
+    doc.line(observacionesX, yPos + 0.05, observacionesX + lineWidth, yPos + 0.05);
+    yPos += 0.35;
   }
 }
 
