@@ -241,6 +241,15 @@ export default function Index() {
               >
                 Rótulo Canastilla
               </Button>
+              <Button asChild variant="outline" size="sm" className="ml-auto">
+                <a
+                  href={`${import.meta.env.BASE_URL}plantilla_rotulos.xlsx`}
+                  download="plantilla_rotulos.xlsx"
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Descargar Plantilla
+                </a>
+              </Button>
             </div>
           </CardContent>
         </Card>
