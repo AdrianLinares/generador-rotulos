@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useRotuloData } from '@/hooks/useRotuloData';
 import { useCanastillaData } from '@/hooks/useCanastillaData';
 import { DataTable } from '@/components/DataTable';
@@ -15,8 +15,6 @@ import { validateRotulos } from '@/utils/validation';
 import { downloadRotulosPDF } from '@/utils/pdfGenerator';
 import { generateSampleData } from '@/utils/excelParser';
 import { toast } from 'sonner';
-import { ValidationResult } from '@/types/rotulo';
-import { CanastillaValidationResult } from '@/types/canastilla';
 import { validateCanastillaRows } from '@/utils/canastillaValidation';
 import { groupCanastillaByCaja } from '@/utils/canastilla';
 import { downloadCanastillasPDF } from '@/utils/canastillaPdfGenerator';
@@ -35,7 +33,6 @@ export default function Index() {
     updateCell,
     clearAll,
     pasteFromExcel,
-    getRotulosData,
     goToNextPreview,
     goToPreviousPreview,
     goToPreview,
@@ -51,28 +48,29 @@ export default function Index() {
     clearAll: clearCanastillaRows,
     pasteFromExcel: pasteCanastillaFromExcel,
     loadSampleData: loadCanastillaSampleData,
-    getCanastillaInputData,
     goToNextPreview: goToNextCanastillaPreview,
     goToPreviousPreview: goToPreviousCanastillaPreview,
     goToPreview: goToCanastillaPreview,
   } = useCanastillaData();
 
   const [isGenerating, setIsGenerating] = useState(false);
-  const [validationResults, setValidationResults] = useState<Map<number, ValidationResult>>(
-    new Map()
+
+  // Validación en vivo: derivada de las filas, keyed por id estable
+  const validationResults = useMemo(() => validateRotulos(rows), [rows]);
+  const canastillaValidationResults = useMemo(
+    () => validateCanastillaRows(canastillaRows),
+    [canastillaRows]
   );
-  const [canastillaValidationResults, setCanastillaValidationResults] = useState<
-    Map<number, CanastillaValidationResult>
-  >(new Map());
 
-  // Validar datos cuando cambien
+  const hasValidRotulos = Array.from(validationResults.values()).some((r) => r.isValid);
+  const hasValidCanastillaRows = Array.from(canastillaValidationResults.values()).some(
+    (r) => r.isValid
+  );
+
+  // Validar datos
   const handleValidate = () => {
-    const rotulos = getRotulosData();
-    const results = validateRotulos(rotulos);
-    setValidationResults(results);
-
-    const validCount = Array.from(results.values()).filter((r) => r.isValid).length;
-    const totalCount = results.size;
+    const validCount = Array.from(validationResults.values()).filter((r) => r.isValid).length;
+    const totalCount = validationResults.size;
 
     if (validCount === totalCount) {
       toast.success(`Todos los ${totalCount} rótulos son válidos`);
@@ -82,12 +80,10 @@ export default function Index() {
   };
 
   const handleValidateCanastilla = () => {
-    const inputs = getCanastillaInputData();
-    const results = validateCanastillaRows(inputs);
-    setCanastillaValidationResults(results);
-
-    const validCount = Array.from(results.values()).filter((r) => r.isValid).length;
-    const totalCount = results.size;
+    const validCount = Array.from(canastillaValidationResults.values()).filter(
+      (r) => r.isValid
+    ).length;
+    const totalCount = canastillaValidationResults.size;
 
     if (validCount === totalCount) {
       toast.success(`Todas las ${totalCount} filas son válidas para canastilla`);
@@ -98,14 +94,9 @@ export default function Index() {
 
   // Generar y descargar PDF
   const handleGeneratePDF = async () => {
-    const rotulos = getRotulosData();
-    const results = validateRotulos(rotulos);
-
-    // Filtrar solo rótulos válidos
-    const validRotulos = rotulos.filter((_, index) => {
-      const result = results.get(index);
-      return result?.isValid;
-    });
+    const validRotulos = rows
+      .filter((row) => validationResults.get(row.id)?.isValid)
+      .map(({ id: _id, ...data }) => data);
 
     if (validRotulos.length === 0) {
       toast.error('No hay rótulos válidos para generar el PDF');
@@ -125,10 +116,9 @@ export default function Index() {
   };
 
   const handleGenerateCanastillaPDF = async () => {
-    const inputs = getCanastillaInputData();
-    const results = validateCanastillaRows(inputs);
-
-    const validRows = inputs.filter((_, index) => results.get(index)?.isValid);
+    const validRows = canastillaRows
+      .filter((row) => canastillaValidationResults.get(row.id)?.isValid)
+      .map(({ id: _id, ...row }) => row);
     const labels = groupCanastillaByCaja(validRows);
 
     if (labels.length === 0) {
@@ -185,10 +175,8 @@ export default function Index() {
   const confirmClearAll = () => {
     if (labelType === 'muestra') {
       clearAll();
-      setValidationResults(new Map());
     } else {
       clearCanastillaRows();
-      setCanastillaValidationResults(new Map());
     }
     toast.info('Tabla limpiada');
     setShowClearConfirm(false);
@@ -337,7 +325,7 @@ export default function Index() {
             {labelType === 'muestra' && validationResults.size > 0 && (
               <ValidationMessages
                 validationResults={validationResults}
-                currentIndex={currentPreviewIndex}
+                currentId={currentRotulo?.id ?? ''}
               />
             )}
 
@@ -388,7 +376,7 @@ export default function Index() {
                 onClick={labelType === 'muestra' ? handleGeneratePDF : handleGenerateCanastillaPDF}
                 disabled={
                   isGenerating ||
-                  (labelType === 'muestra' ? rows.length === 0 : canastillaRows.length === 0)
+                  (labelType === 'muestra' ? !hasValidRotulos : !hasValidCanastillaRows)
                 }
                 size="lg"
                 className="bg-blue-600 hover:bg-blue-700"

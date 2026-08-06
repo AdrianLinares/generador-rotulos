@@ -41,6 +41,24 @@ describe('useRotuloData', () => {
     expect(result.current.rows).toHaveLength(1);
   });
 
+  it('clamps the preview index when the last row is removed', () => {
+    const { result } = renderHook(() => useRotuloData());
+    act(() => {
+      result.current.addRow();
+      result.current.addRow();
+    });
+    expect(result.current.rows).toHaveLength(3);
+    act(() => {
+      result.current.goToPreview(2);
+    });
+    expect(result.current.currentPreviewIndex).toBe(2);
+    act(() => {
+      result.current.removeRow(result.current.rows[2].id);
+    });
+    expect(result.current.rows).toHaveLength(2);
+    expect(result.current.currentPreviewIndex).toBe(1);
+  });
+
   it('updates a cell value', () => {
     const { result } = renderHook(() => useRotuloData());
     const rowId = result.current.rows[0].id;

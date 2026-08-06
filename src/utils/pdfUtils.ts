@@ -4,6 +4,7 @@
 export async function getImageBase64(imagePath: string): Promise<string> {
   try {
     const response = await fetch(imagePath);
+    if (!response.ok) return '';
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

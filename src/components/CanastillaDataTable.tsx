@@ -96,6 +96,7 @@ export function CanastillaDataTable({
                     size="sm"
                     className="text-red-600 hover:text-red-700 hover:bg-red-50"
                     disabled={rows.length === 1}
+                    aria-label="Eliminar fila"
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

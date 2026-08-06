@@ -2,9 +2,11 @@ import {
   CANASTILLA_FIELD_LABELS,
   CANASTILLA_REQUIRED_FIELDS,
   CanastillaInput,
+  CanastillaTableRow,
   CanastillaValidationError,
   CanastillaValidationResult,
 } from '@/types/canastilla';
+import { normalizeValue } from '@/utils/canastilla';
 
 export function validateCanastillaRow(row: CanastillaInput): CanastillaValidationResult {
   const errors: CanastillaValidationError[] = [];
@@ -18,7 +20,7 @@ export function validateCanastillaRow(row: CanastillaInput): CanastillaValidatio
     }
   });
 
-  if (row.caja && !Number.isInteger(Number(row.caja))) {
+  if (row.caja && !/^\d+$/.test(normalizeValue(row.caja))) {
     errors.push({
       field: 'caja',
       message: 'CAJA debe ser un numero entero',
@@ -39,12 +41,12 @@ export function validateCanastillaRow(row: CanastillaInput): CanastillaValidatio
 }
 
 export function validateCanastillaRows(
-  rows: CanastillaInput[]
-): Map<number, CanastillaValidationResult> {
-  const results = new Map<number, CanastillaValidationResult>();
+  rows: CanastillaTableRow[]
+): Map<string, CanastillaValidationResult> {
+  const results = new Map<string, CanastillaValidationResult>();
 
-  rows.forEach((row, index) => {
-    results.set(index, validateCanastillaRow(row));
+  rows.forEach((row) => {
+    results.set(row.id, validateCanastillaRow(row));
   });
 
   return results;

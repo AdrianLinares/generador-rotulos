@@ -34,6 +34,29 @@ describe('validateCanastillaRow', () => {
     expect(result.errors.find((e) => e.field === 'caja')!.message).toContain('entero');
   });
 
+  it('returns invalid when caja uses scientific notation (1e1)', () => {
+    const result = validateCanastillaRow({ ...validRow, caja: '1e1' });
+    expect(result.isValid).toBe(false);
+    expect(result.errors.find((e) => e.field === 'caja')).toBeDefined();
+  });
+
+  it('returns invalid when caja has a decimal point (10.0)', () => {
+    const result = validateCanastillaRow({ ...validRow, caja: '10.0' });
+    expect(result.isValid).toBe(false);
+    expect(result.errors.find((e) => e.field === 'caja')).toBeDefined();
+  });
+
+  it('returns invalid when caja is a hex literal (0x10)', () => {
+    const result = validateCanastillaRow({ ...validRow, caja: '0x10' });
+    expect(result.isValid).toBe(false);
+    expect(result.errors.find((e) => e.field === 'caja')).toBeDefined();
+  });
+
+  it('trims whitespace around caja before validating', () => {
+    const result = validateCanastillaRow({ ...validRow, caja: '  10  ' });
+    expect(result.isValid).toBe(true);
+  });
+
   it('returns invalid when anio does not have 4 digits', () => {
     const result = validateCanastillaRow({ ...validRow, anio: '24' });
     expect(result.isValid).toBe(false);
@@ -69,17 +92,31 @@ describe('validateCanastillaRow', () => {
 });
 
 describe('validateCanastillaRows', () => {
-  it('returns a Map with results for each row', () => {
+  it('returns a Map keyed by row id with results', () => {
     const rows = [
-      { caja: '10', idMuestra: 'A1', contratoProyecto: 'C1', anio: '2024', plancha: 'P1' },
-      { caja: '', idMuestra: '', contratoProyecto: '', anio: '', plancha: '' },
+      {
+        id: 'row-1',
+        caja: '10',
+        idMuestra: 'A1',
+        contratoProyecto: 'C1',
+        anio: '2024',
+        plancha: 'P1',
+      },
+      {
+        id: 'row-2',
+        caja: '',
+        idMuestra: '',
+        contratoProyecto: '',
+        anio: '',
+        plancha: '',
+      },
     ];
 
     const results = validateCanastillaRows(rows);
     expect(results).toBeInstanceOf(Map);
     expect(results.size).toBe(2);
-    expect(results.get(0)?.isValid).toBe(true);
-    expect(results.get(1)?.isValid).toBe(false);
+    expect(results.get('row-1')?.isValid).toBe(true);
+    expect(results.get('row-2')?.isValid).toBe(false);
   });
 
   it('returns empty Map for empty array', () => {

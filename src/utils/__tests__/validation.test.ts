@@ -96,9 +96,10 @@ describe('validateRotulo', () => {
 });
 
 describe('validateRotulos', () => {
-  it('returns a Map with results for each rotulo', () => {
+  it('returns a Map keyed by row id with results', () => {
     const rotulos = [
       {
+        id: 'row-1',
         igm: '1',
         idMuestra: 'A1',
         plancha: 'P1',
@@ -112,6 +113,7 @@ describe('validateRotulos', () => {
         contratoProyecto: 'C1',
       },
       {
+        id: 'row-2',
         igm: '',
         idMuestra: '',
         plancha: 'P2',
@@ -129,8 +131,8 @@ describe('validateRotulos', () => {
     const results = validateRotulos(rotulos);
     expect(results).toBeInstanceOf(Map);
     expect(results.size).toBe(2);
-    expect(results.get(0)?.isValid).toBe(true);
-    expect(results.get(1)?.isValid).toBe(false);
+    expect(results.get('row-1')?.isValid).toBe(true);
+    expect(results.get('row-2')?.isValid).toBe(false);
   });
 
   it('returns empty Map for empty array', () => {

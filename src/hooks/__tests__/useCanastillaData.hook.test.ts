@@ -41,6 +41,47 @@ describe('useCanastillaData', () => {
     expect(result.current.rows).toHaveLength(1);
   });
 
+  it('clamps the preview index when the last label row is removed', () => {
+    const { result } = renderHook(() => useCanastillaData());
+    act(() => {
+      result.current.updateCell(result.current.rows[0].id, 'caja', '10');
+      result.current.updateCell(result.current.rows[0].id, 'idMuestra', 'A1');
+      result.current.updateCell(result.current.rows[0].id, 'contratoProyecto', 'C1');
+      result.current.updateCell(result.current.rows[0].id, 'anio', '2024');
+      result.current.updateCell(result.current.rows[0].id, 'plancha', 'P1');
+    });
+    act(() => {
+      result.current.addRow();
+    });
+    act(() => {
+      result.current.updateCell(result.current.rows[1].id, 'caja', '20');
+      result.current.updateCell(result.current.rows[1].id, 'idMuestra', 'A2');
+      result.current.updateCell(result.current.rows[1].id, 'contratoProyecto', 'C2');
+      result.current.updateCell(result.current.rows[1].id, 'anio', '2023');
+      result.current.updateCell(result.current.rows[1].id, 'plancha', 'P2');
+    });
+    act(() => {
+      result.current.addRow();
+    });
+    act(() => {
+      result.current.updateCell(result.current.rows[2].id, 'caja', '30');
+      result.current.updateCell(result.current.rows[2].id, 'idMuestra', 'A3');
+      result.current.updateCell(result.current.rows[2].id, 'contratoProyecto', 'C3');
+      result.current.updateCell(result.current.rows[2].id, 'anio', '2022');
+      result.current.updateCell(result.current.rows[2].id, 'plancha', 'P3');
+    });
+    expect(result.current.labels).toHaveLength(3);
+    act(() => {
+      result.current.goToPreview(2);
+    });
+    expect(result.current.currentPreviewIndex).toBe(2);
+    act(() => {
+      result.current.removeRow(result.current.rows[2].id);
+    });
+    expect(result.current.labels).toHaveLength(2);
+    expect(result.current.currentPreviewIndex).toBe(1);
+  });
+
   it('updates a cell value', () => {
     const { result } = renderHook(() => useCanastillaData());
     const rowId = result.current.rows[0].id;

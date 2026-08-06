@@ -3,12 +3,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertCircle, CheckCircle2 } from 'lucide-react';
 
 interface ValidationMessagesProps {
-  validationResults: Map<number, ValidationResult>;
-  currentIndex: number;
+  validationResults: Map<string, ValidationResult>;
+  currentId: string;
 }
 
-export function ValidationMessages({ validationResults, currentIndex }: ValidationMessagesProps) {
-  const currentResult = validationResults.get(currentIndex);
+export function ValidationMessages({ validationResults, currentId }: ValidationMessagesProps) {
+  const currentResult = validationResults.get(currentId);
 
   if (!currentResult) return null;
 

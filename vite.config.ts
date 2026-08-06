@@ -23,12 +23,9 @@ export default defineConfig(({ mode }) => ({
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': [
             '@radix-ui/react-tooltip',
-            '@radix-ui/react-separator',
             '@radix-ui/react-slot',
-            '@radix-ui/react-alert-dialog',
           ],
-          'pdf-vendor': ['jspdf', 'jspdf-autotable'],
-          'query-vendor': ['@tanstack/react-query'],
+          'pdf-vendor': ['jspdf'],
         },
       },
     },

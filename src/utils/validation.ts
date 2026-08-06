@@ -4,6 +4,7 @@ import {
   ValidationError,
   REQUIRED_FIELDS,
   FIELD_LABELS,
+  TableRow,
 } from '@/types/rotulo';
 
 /**
@@ -44,13 +45,13 @@ export function validateRotulo(data: RotuloData): ValidationResult {
 }
 
 /**
- * Valida múltiples rótulos
+ * Valida múltiples rótulos. Los resultados quedan keyed por el id estable de cada fila.
  */
-export function validateRotulos(rotulos: RotuloData[]): Map<number, ValidationResult> {
-  const results = new Map<number, ValidationResult>();
+export function validateRotulos(rotulos: TableRow[]): Map<string, ValidationResult> {
+  const results = new Map<string, ValidationResult>();
 
-  rotulos.forEach((rotulo, index) => {
-    results.set(index, validateRotulo(rotulo));
+  rotulos.forEach((rotulo) => {
+    results.set(rotulo.id, validateRotulo(rotulo));
   });
 
   return results;

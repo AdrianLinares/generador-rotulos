@@ -3,23 +3,31 @@ import { CanastillaLabelData } from '@/types/canastilla';
 import { formatIdsMuestra, formatPlanchas } from '@/utils/canastilla';
 import { getImageBase64 } from '@/utils/pdfUtils';
 
-const ALPHANUMERIC_FONT_FAMILY = 'courier';
+const ALPHANUMERIC_FONT_FAMILY = 'helvetica';
 
-function fitTextToBox(
+// jsPDF renderiza líneas con leading real de 1.15 (baseline a baseline) y glifos de ~1.0x el
+// tamaño de fuente (ascent 0.755 + descent 0.245 en fuentes estándar).
+// Baseline offset = ascent / leading = 0.755 / 1.15 ≈ 0.66
+const LINE_HEIGHT_FACTOR = 1.15;
+const BASELINE_OFFSET_FACTOR = 0.66;
+
+export function fitTextToBox(
   doc: jsPDF,
   text: string,
   maxWidth: number,
   maxHeight: number,
   initialFontSize: number,
   minFontSize = 4.2,
-  lineHeightFactor = 1.15
+  lineHeightFactor = LINE_HEIGHT_FACTOR
 ) {
   const lineHeightCm = (fontSize: number) => fontSize * 0.0352778 * lineHeightFactor;
+  const glyphHeightCm = (fontSize: number) => fontSize * 0.0352778;
 
   for (let fontSize = initialFontSize; fontSize >= minFontSize; fontSize -= 0.2) {
     doc.setFontSize(fontSize);
     const lines = doc.splitTextToSize(text, maxWidth) as string[];
-    const requiredHeight = lines.length * lineHeightCm(fontSize);
+    // Altura real del render: leading entre baselines + altura de glifos de la primera línea
+    const requiredHeight = lineHeightCm(fontSize) * (lines.length - 1) + glyphHeightCm(fontSize);
 
     if (requiredHeight <= maxHeight) {
       return { fontSize, lines, lineHeight: lineHeightCm(fontSize) };
@@ -35,16 +43,17 @@ function fitTextToBox(
   };
 }
 
-function fitTextsToSharedFont(
+export function fitTextsToSharedFont(
   doc: jsPDF,
   texts: string[],
   maxWidth: number,
   maxHeights: number[],
   initialFontSize: number,
   minFontSize = 4.2,
-  lineHeightFactor = 1.02
+  lineHeightFactor = LINE_HEIGHT_FACTOR
 ) {
   const lineHeightCm = (fontSize: number) => fontSize * 0.0352778 * lineHeightFactor;
+  const glyphHeightCm = (fontSize: number) => fontSize * 0.0352778;
 
   for (let fontSize = initialFontSize; fontSize >= minFontSize; fontSize -= 0.2) {
     doc.setFontSize(fontSize);
@@ -52,7 +61,8 @@ function fitTextsToSharedFont(
     const lineHeight = lineHeightCm(fontSize);
 
     const allFit = linesPerText.every(
-      (lines, index) => lines.length * lineHeight <= maxHeights[index]
+      (lines, index) =>
+        lineHeight * (lines.length - 1) + glyphHeightCm(fontSize) <= maxHeights[index]
     );
     if (allFit) {
       return { fontSize, lineHeight, linesPerText };
@@ -129,25 +139,28 @@ function drawCanastillaLabel(
   const idsBoxX = frameX + 0.2;
   const idsBoxY = frameY + 1.8;
   const idsBoxWidth = 11.6;
-  const idsBoxHeight = 1.45;
+  const idsBoxHeight = 1.65;
   doc.rect(idsBoxX, idsBoxY, idsBoxWidth, idsBoxHeight);
 
   doc.setFont('helvetica', 'normal');
   const idsText = formatIdsMuestra(label.idsMuestra) || '—';
   const idsMaxTextWidth = idsBoxWidth - 0.12;
-  doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'strong');
-  const idsFit = fitTextToBox(doc, idsText, idsMaxTextWidth, idsBoxHeight - 0.06, 11.5, 4.4, 1.02);
-  const idsTextHeight = idsFit.lines.length * idsFit.lineHeight;
-  const idsTextStartY = idsBoxY + (idsBoxHeight - idsTextHeight) / 2 + idsFit.lineHeight * 0.82;
+  doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'normal');
+  const idsFit = fitTextToBox(doc, idsText, idsMaxTextWidth, idsBoxHeight - 0.06, 11.5, 4.4);
+  // splitTextToSize deja el separador " - " colgando al final (o al inicio) de cada línea;
+  // limpiarlo no cambia el número de líneas ni reduce el ancho, solo elimina el guión suelto.
+  const idsLines = idsFit.lines.map((line) => line.replace(/\s+-\s*$/, '').replace(/^\s*-\s+/, ''));
+  const idsTextHeight = (idsLines.length - 1) * idsFit.lineHeight + idsFit.fontSize * 0.0352778;
+  const idsTextStartY = idsBoxY + (idsBoxHeight - idsTextHeight) / 2 + idsFit.lineHeight * BASELINE_OFFSET_FACTOR;
   doc.setFontSize(idsFit.fontSize);
-  idsFit.lines.forEach((line, index) => {
+  idsLines.forEach((line, index) => {
     doc.text(line, idsBoxX + idsBoxWidth / 2, idsTextStartY + index * idsFit.lineHeight, {
       align: 'center',
     });
   });
 
   const bottomBoxX = frameX + 0.2;
-  const bottomBoxY = frameY + 3.45;
+  const bottomBoxY = frameY + 3.6;
   const bottomBoxWidth = 11.6;
   const bottomBoxHeight = 1.35;
   doc.rect(bottomBoxX, bottomBoxY, bottomBoxWidth, bottomBoxHeight);
@@ -172,27 +185,27 @@ function drawCanastillaLabel(
   const yearAreaY = planchasAreaY + planchasAreaHeight;
 
   const bottomTexts = [proyecto, `Planchas: ${planchas}`, `Año ${anio}`];
-  doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'strong');
+  doc.setFont(ALPHANUMERIC_FONT_FAMILY, 'normal');
   const sharedFit = fitTextsToSharedFont(
     doc,
     bottomTexts,
     contentMaxWidth,
     [projectAreaHeight, planchasAreaHeight, yearAreaHeight],
     14,
-    5,
-    0.9
+    5
   );
 
   const rowTopYs = [projectAreaY, planchasAreaY, yearAreaY];
   doc.setFontSize(sharedFit.fontSize);
   sharedFit.linesPerText.forEach((lines, rowIndex) => {
-    const textHeight = lines.length * sharedFit.lineHeight;
+    const cleanLines = lines.map((line) => line.replace(/\s+-\s*$/, '').replace(/^\s*-\s+/, ''));
+    const textHeight = (cleanLines.length - 1) * sharedFit.lineHeight + sharedFit.fontSize * 0.0352778;
     const textStartY =
       rowTopYs[rowIndex] +
       ([projectAreaHeight, planchasAreaHeight, yearAreaHeight][rowIndex] - textHeight) / 2 +
-      sharedFit.lineHeight * 0.82;
+      sharedFit.lineHeight * BASELINE_OFFSET_FACTOR;
 
-    lines.forEach((line, lineIndex) => {
+    cleanLines.forEach((line, lineIndex) => {
       doc.text(
         line,
         bottomBoxX + bottomBoxWidth / 2,
@@ -212,7 +225,7 @@ export async function generateCanastillasPDF(labels: CanastillaLabelData[]): Pro
     format: 'letter',
   });
 
-  const logoBase64 = await getImageBase64('/logo-litoteca.png');
+  const logoBase64 = await getImageBase64(`${import.meta.env.BASE_URL}logo-litoteca.png`);
 
   const labelsPerPage = 5;
   const frameX = 4.58;

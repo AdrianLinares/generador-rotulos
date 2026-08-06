@@ -8,6 +8,7 @@ import {
 } from '@/types/canastilla';
 import { groupCanastillaByCaja } from '@/utils/canastilla';
 import { parseCanastillaExcelData } from '@/utils/canastillaExcelParser';
+import { toast } from 'sonner';
 
 export function generateSampleCanastillaData(): CanastillaInput[] {
   return [
@@ -49,7 +50,13 @@ export function useCanastillaData() {
   const removeRow = useCallback((id: string) => {
     setRows((prev) => {
       const newRows = prev.filter((row) => row.id !== id);
-      return newRows.length === 0 ? [{ ...EMPTY_CANASTILLA, id: uuidv4() }] : newRows;
+      const next = newRows.length === 0 ? [{ ...EMPTY_CANASTILLA, id: uuidv4() }] : newRows;
+      // Clamp del índice de preview al último label agrupado (labels derive de rows)
+      const nextLabelCount = groupCanastillaByCaja(
+        next.map(({ id: _id, ...row }) => row)
+      ).length;
+      setCurrentPreviewIndex((i) => Math.max(0, Math.min(i, nextLabelCount - 1)));
+      return next;
     });
   }, []);
 
@@ -63,10 +70,20 @@ export function useCanastillaData() {
   }, []);
 
   const pasteFromExcel = useCallback((pastedText: string) => {
+    if (!pastedText.trim()) {
+      toast.error('El portapapeles está vacío. Copie los datos desde Excel primero.');
+      return;
+    }
+
     const parsed = parseCanastillaExcelData(pastedText);
     if (parsed.length > 0) {
       setRows(parsed.map((row) => ({ ...row, id: uuidv4() })));
       setCurrentPreviewIndex(0);
+      toast.success(`${parsed.length} fila(s) importadas desde Excel`);
+    } else {
+      toast.error(
+        'No se encontraron filas válidas. Verifique que los datos estén separados por tabulador y tengan 5 columnas (CAJA, ID MUESTRA, CONTRATO, AÑO, PLANCHA).'
+      );
     }
   }, []);
 

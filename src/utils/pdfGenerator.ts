@@ -296,7 +296,7 @@ export async function generateRotulosPDF(rotulos: RotuloData[]): Promise<jsPDF> 
   });
 
   // Cargar logo
-  const logoBase64 = await getImageBase64('/logo-litoteca.png');
+  const logoBase64 = await getImageBase64(`${import.meta.env.BASE_URL}logo-litoteca.png`);
 
   // Dimensiones del rótulo (en cm)
   const rotuloWidth = 9.182;
@@ -327,7 +327,6 @@ export async function generateRotulosPDF(rotulos: RotuloData[]): Promise<jsPDF> 
 
   // Procesar rótulos en grupos de 6
   for (let i = 0; i < rotulos.length; i++) {
-    const pageIndex = Math.floor(i / rotulosPorPagina);
     const positionInPage = i % rotulosPorPagina;
 
     // Agregar nueva página si es necesario (excepto para la primera)

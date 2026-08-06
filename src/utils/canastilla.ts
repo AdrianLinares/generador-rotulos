@@ -1,6 +1,6 @@
 import { CanastillaInput, CanastillaLabelData } from '@/types/canastilla';
 
-function normalizeValue(value: string): string {
+export function normalizeValue(value: string): string {
   return value.trim();
 }
 

@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { RotuloData, TableRow, EMPTY_ROTULO } from '@/types/rotulo';
 import { parseExcelData } from '@/utils/excelParser';
 import { v4 as uuidv4 } from 'uuid';
+import { toast } from 'sonner';
 
 export function useRotuloData() {
   const [rows, setRows] = useState<TableRow[]>([{ ...EMPTY_ROTULO, id: uuidv4() }]);
@@ -16,8 +17,10 @@ export function useRotuloData() {
   const removeRow = useCallback((id: string) => {
     setRows((prev) => {
       const newRows = prev.filter((row) => row.id !== id);
-      // Mantener al menos una fila
-      return newRows.length === 0 ? [{ ...EMPTY_ROTULO, id: uuidv4() }] : newRows;
+      const next = newRows.length === 0 ? [{ ...EMPTY_ROTULO, id: uuidv4() }] : newRows;
+      // Clamp del índice de preview: nunca puede superar el último índice válido
+      setCurrentPreviewIndex((i) => Math.min(i, next.length - 1));
+      return next;
     });
   }, []);
 
@@ -34,11 +37,21 @@ export function useRotuloData() {
 
   // Pegar datos desde Excel
   const pasteFromExcel = useCallback((pastedText: string) => {
+    if (!pastedText.trim()) {
+      toast.error('El portapapeles está vacío. Copie los datos desde Excel primero.');
+      return;
+    }
+
     const parsedData = parseExcelData(pastedText);
     if (parsedData.length > 0) {
       const newRows = parsedData.map((data) => ({ ...data, id: uuidv4() }));
       setRows(newRows);
       setCurrentPreviewIndex(0);
+      toast.success(`${parsedData.length} rótulo(s) importados desde Excel`);
+    } else {
+      toast.error(
+        'No se encontraron filas válidas. Verifique que los datos estén separados por tabulador y tengan 11 columnas.'
+      );
     }
   }, []);
 
