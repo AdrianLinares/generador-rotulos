@@ -37,4 +37,12 @@ describe('ValidationMessages', () => {
     );
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('renders nothing before the user enters sample data', () => {
+    const results = new Map<string, ValidationResult>([['row-1', invalidResult]]);
+    const { container } = render(
+      <ValidationMessages validationResults={results} currentId="row-1" showValidation={false} />
+    );
+    expect(container).toBeEmptyDOMElement();
+  });
 });

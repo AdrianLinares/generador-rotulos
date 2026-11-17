@@ -9,7 +9,6 @@ import { NavigationControls } from '@/components/NavigationControls';
 import { ValidationMessages } from '@/components/ValidationMessages';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import { Download, Trash2, FileText } from 'lucide-react';
 import { validateRotulos } from '@/utils/validation';
 import { downloadRotulosPDF } from '@/utils/pdfGenerator';
@@ -33,6 +32,7 @@ export default function Index() {
     updateCell,
     clearAll,
     pasteFromExcel,
+    importFromExcel,
     goToNextPreview,
     goToPreviousPreview,
     goToPreview,
@@ -47,6 +47,7 @@ export default function Index() {
     updateCell: updateCanastillaCell,
     clearAll: clearCanastillaRows,
     pasteFromExcel: pasteCanastillaFromExcel,
+    importFromExcel: importCanastillaFromExcel,
     loadSampleData: loadCanastillaSampleData,
     goToNextPreview: goToNextCanastillaPreview,
     goToPreviousPreview: goToPreviousCanastillaPreview,
@@ -242,7 +243,69 @@ export default function Index() {
           </CardContent>
         </Card>
 
-        {/* Sección 1: Tabla de datos */}
+        {/* Sección 1: Vista previa */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl">Vista Previa del Rótulo</CardTitle>
+            <CardDescription>
+              Navegue entre los diferentes rótulos para verificar cómo se verán en el PDF
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Controles de navegación */}
+            <NavigationControls
+              currentIndex={
+                labelType === 'muestra' ? currentPreviewIndex : currentCanastillaPreviewIndex
+              }
+              totalCount={labelType === 'muestra' ? rows.length : canastillaLabels.length}
+              onPrevious={
+                labelType === 'muestra' ? goToPreviousPreview : goToPreviousCanastillaPreview
+              }
+              onNext={labelType === 'muestra' ? goToNextPreview : goToNextCanastillaPreview}
+              onGoTo={labelType === 'muestra' ? goToPreview : goToCanastillaPreview}
+            />
+
+            {/* Mensajes de validación */}
+            {labelType === 'muestra' && validationResults.size > 0 && (
+              <ValidationMessages
+                validationResults={validationResults}
+                currentId={currentRotulo?.id ?? ''}
+                showValidation={Boolean(
+                  currentRotulo &&
+                    Object.entries(currentRotulo).some(
+                      ([field, value]) => field !== 'id' && value.trim() !== ''
+                    )
+                )}
+              />
+            )}
+
+            {labelType === 'canastilla' && canastillaValidationResults.size > 0 && (
+              <div className="rounded-lg border border-slate-200 p-4 bg-slate-50 text-sm text-slate-700">
+                Filas válidas para canastilla:{' '}
+                <span className="font-semibold">
+                  {
+                    Array.from(canastillaValidationResults.values()).filter(
+                      (result) => result.isValid
+                    ).length
+                  }
+                </span>{' '}
+                de <span className="font-semibold">{canastillaValidationResults.size}</span>.
+              </div>
+            )}
+
+            {/* Preview del rótulo */}
+            {labelType === 'muestra' && currentRotulo && <RotuloPreview rotulo={currentRotulo} />}
+            {labelType === 'canastilla' && <CanastillaPreview canastilla={previewCanastilla} />}
+            {labelType === 'canastilla' && !currentCanastilla && (
+              <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center text-slate-600">
+                No hay canastillas agrupadas para vista previa. Verifique que CAJA sea un numero
+                entero y que los campos requeridos esten completos.
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Sección 2: Tabla de datos */}
         <Card className="mb-8">
           <CardHeader>
             <div className="flex justify-between items-start">
@@ -284,6 +347,7 @@ export default function Index() {
                 onRemoveRow={removeRow}
                 onAddRow={addRow}
                 onPasteFromExcel={pasteFromExcel}
+                onImportFromExcel={importFromExcel}
               />
             ) : (
               <CanastillaDataTable
@@ -292,65 +356,8 @@ export default function Index() {
                 onRemoveRow={removeCanastillaRow}
                 onAddRow={addCanastillaRow}
                 onPasteFromExcel={pasteCanastillaFromExcel}
+                onImportFromExcel={importCanastillaFromExcel}
               />
-            )}
-          </CardContent>
-        </Card>
-
-        <Separator className="my-8" />
-
-        {/* Sección 2: Vista previa */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle className="text-2xl">Vista Previa del Rótulo</CardTitle>
-            <CardDescription>
-              Navegue entre los diferentes rótulos para verificar cómo se verán en el PDF
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {/* Controles de navegación */}
-            <NavigationControls
-              currentIndex={
-                labelType === 'muestra' ? currentPreviewIndex : currentCanastillaPreviewIndex
-              }
-              totalCount={labelType === 'muestra' ? rows.length : canastillaLabels.length}
-              onPrevious={
-                labelType === 'muestra' ? goToPreviousPreview : goToPreviousCanastillaPreview
-              }
-              onNext={labelType === 'muestra' ? goToNextPreview : goToNextCanastillaPreview}
-              onGoTo={labelType === 'muestra' ? goToPreview : goToCanastillaPreview}
-            />
-
-            {/* Mensajes de validación */}
-            {labelType === 'muestra' && validationResults.size > 0 && (
-              <ValidationMessages
-                validationResults={validationResults}
-                currentId={currentRotulo?.id ?? ''}
-              />
-            )}
-
-            {labelType === 'canastilla' && canastillaValidationResults.size > 0 && (
-              <div className="rounded-lg border border-slate-200 p-4 bg-slate-50 text-sm text-slate-700">
-                Filas válidas para canastilla:{' '}
-                <span className="font-semibold">
-                  {
-                    Array.from(canastillaValidationResults.values()).filter(
-                      (result) => result.isValid
-                    ).length
-                  }
-                </span>{' '}
-                de <span className="font-semibold">{canastillaValidationResults.size}</span>.
-              </div>
-            )}
-
-            {/* Preview del rótulo */}
-            {labelType === 'muestra' && currentRotulo && <RotuloPreview rotulo={currentRotulo} />}
-            {labelType === 'canastilla' && <CanastillaPreview canastilla={previewCanastilla} />}
-            {labelType === 'canastilla' && !currentCanastilla && (
-              <div className="rounded-lg border border-dashed border-slate-300 p-8 text-center text-slate-600">
-                No hay canastillas agrupadas para vista previa. Verifique que CAJA sea un numero
-                entero y que los campos requeridos esten completos.
-              </div>
             )}
           </CardContent>
         </Card>

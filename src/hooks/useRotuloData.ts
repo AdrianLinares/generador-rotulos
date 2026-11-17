@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { RotuloData, TableRow, EMPTY_ROTULO } from '@/types/rotulo';
 import { parseExcelData } from '@/utils/excelParser';
+import { parseRotulosWorkbook } from '@/utils/excelFileParser';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'sonner';
 
@@ -11,6 +12,22 @@ export function useRotuloData() {
   // Agregar una nueva fila vacía
   const addRow = useCallback(() => {
     setRows((prev) => [...prev, { ...EMPTY_ROTULO, id: uuidv4() }]);
+  }, []);
+
+  const importFromExcel = useCallback(async (file: File) => {
+    try {
+      const parsedData = await parseRotulosWorkbook(file);
+      if (parsedData.length === 0) {
+        toast.error('La plantilla no contiene filas de rótulos válidas.');
+        return;
+      }
+
+      setRows(parsedData.map((data) => ({ ...data, id: uuidv4() })));
+      setCurrentPreviewIndex(0);
+      toast.success(`${parsedData.length} rótulo(s) cargados desde la plantilla`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo leer la plantilla de Excel.');
+    }
   }, []);
 
   // Eliminar una fila por ID
@@ -84,6 +101,7 @@ export function useRotuloData() {
     updateCell,
     clearAll,
     pasteFromExcel,
+    importFromExcel,
     getRotulosData,
     goToNextPreview,
     goToPreviousPreview,

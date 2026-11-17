@@ -1,9 +1,10 @@
 import { TableRow, FIELD_LABELS, RotuloData } from '@/types/rotulo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Trash2, Plus, Clipboard } from 'lucide-react';
+import { Trash2, Plus, Clipboard, FileUp } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import type { ChangeEvent } from 'react';
 
 interface DataTableProps {
   rows: TableRow[];
@@ -11,6 +12,7 @@ interface DataTableProps {
   onRemoveRow: (id: string) => void;
   onAddRow: () => void;
   onPasteFromExcel: (text: string) => void;
+  onImportFromExcel: (file: File) => void;
 }
 
 export function DataTable({
@@ -19,6 +21,7 @@ export function DataTable({
   onRemoveRow,
   onAddRow,
   onPasteFromExcel,
+  onImportFromExcel,
 }: DataTableProps) {
   const handlePaste = async () => {
     try {
@@ -27,6 +30,12 @@ export function DataTable({
     } catch {
       toast.error('No se pudo acceder al portapapeles. Pegue manualmente en una celda.');
     }
+  };
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) onImportFromExcel(file);
+    event.target.value = '';
   };
 
   const fields: (keyof RotuloData)[] = [
@@ -46,6 +55,18 @@ export function DataTable({
   return (
     <div className="space-y-4">
       <div className="flex gap-2 justify-end">
+        <Button asChild variant="outline" size="sm">
+          <label>
+            <FileUp className="w-4 h-4 mr-2" />
+            Cargar plantilla
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              className="sr-only"
+              onChange={handleFileChange}
+            />
+          </label>
+        </Button>
         <Button onClick={handlePaste} variant="outline" size="sm">
           <Clipboard className="w-4 h-4 mr-2" />
           Pegar desde Excel

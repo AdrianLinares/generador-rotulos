@@ -14,6 +14,7 @@ const defaultProps = {
   onRemoveRow: vi.fn(),
   onAddRow: vi.fn(),
   onPasteFromExcel: vi.fn(),
+  onImportFromExcel: vi.fn(),
 };
 
 describe('DataTable', () => {

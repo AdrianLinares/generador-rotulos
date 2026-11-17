@@ -8,6 +8,7 @@ import {
 } from '@/types/canastilla';
 import { groupCanastillaByCaja } from '@/utils/canastilla';
 import { parseCanastillaExcelData } from '@/utils/canastillaExcelParser';
+import { parseCanastillaWorkbook } from '@/utils/excelFileParser';
 import { toast } from 'sonner';
 
 export function generateSampleCanastillaData(): CanastillaInput[] {
@@ -45,6 +46,22 @@ export function useCanastillaData() {
 
   const addRow = useCallback(() => {
     setRows((prev) => [...prev, { ...EMPTY_CANASTILLA, id: uuidv4() }]);
+  }, []);
+
+  const importFromExcel = useCallback(async (file: File) => {
+    try {
+      const parsed = await parseCanastillaWorkbook(file);
+      if (parsed.length === 0) {
+        toast.error('La plantilla no contiene filas de canastilla válidas.');
+        return;
+      }
+
+      setRows(parsed.map((row) => ({ ...row, id: uuidv4() })));
+      setCurrentPreviewIndex(0);
+      toast.success(`${parsed.length} fila(s) cargadas desde la plantilla`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo leer la plantilla de Excel.');
+    }
   }, []);
 
   const removeRow = useCallback((id: string) => {
@@ -125,6 +142,7 @@ export function useCanastillaData() {
     updateCell,
     clearAll,
     pasteFromExcel,
+    importFromExcel,
     loadSampleData,
     getCanastillaInputData,
     goToNextPreview,

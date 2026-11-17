@@ -2,8 +2,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { CANASTILLA_FIELD_LABELS, CanastillaInput, CanastillaTableRow } from '@/types/canastilla';
-import { Clipboard, Plus, Trash2 } from 'lucide-react';
+import { Clipboard, FileUp, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import type { ChangeEvent } from 'react';
 
 interface CanastillaDataTableProps {
   rows: CanastillaTableRow[];
@@ -11,6 +12,7 @@ interface CanastillaDataTableProps {
   onRemoveRow: (id: string) => void;
   onAddRow: () => void;
   onPasteFromExcel: (text: string) => void;
+  onImportFromExcel: (file: File) => void;
 }
 
 export function CanastillaDataTable({
@@ -19,6 +21,7 @@ export function CanastillaDataTable({
   onRemoveRow,
   onAddRow,
   onPasteFromExcel,
+  onImportFromExcel,
 }: CanastillaDataTableProps) {
   const fields: (keyof CanastillaInput)[] = [
     'caja',
@@ -37,9 +40,27 @@ export function CanastillaDataTable({
     }
   };
 
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) onImportFromExcel(file);
+    event.target.value = '';
+  };
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex justify-end gap-2">
+        <Button asChild variant="outline" size="sm">
+          <label>
+            <FileUp className="w-4 h-4 mr-2" />
+            Cargar plantilla
+            <input
+              type="file"
+              accept=".xlsx,.xls"
+              className="sr-only"
+              onChange={handleFileChange}
+            />
+          </label>
+        </Button>
         <Button onClick={handlePaste} variant="outline" size="sm">
           <Clipboard className="w-4 h-4 mr-2" />
           Pegar desde Excel

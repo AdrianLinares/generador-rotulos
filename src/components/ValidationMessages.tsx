@@ -5,12 +5,17 @@ import { AlertCircle, CheckCircle2 } from 'lucide-react';
 interface ValidationMessagesProps {
   validationResults: Map<string, ValidationResult>;
   currentId: string;
+  showValidation?: boolean;
 }
 
-export function ValidationMessages({ validationResults, currentId }: ValidationMessagesProps) {
+export function ValidationMessages({
+  validationResults,
+  currentId,
+  showValidation = true,
+}: ValidationMessagesProps) {
   const currentResult = validationResults.get(currentId);
 
-  if (!currentResult) return null;
+  if (!currentResult || !showValidation) return null;
 
   if (currentResult.isValid) {
     return (
