@@ -10,8 +10,8 @@ stack:
   framework: react-19
   runtime: vite5-swc
   ui_library: shadcn/ui + radix-ui + tailwindcss3
-  state_management: zustand + react-query
-  forms: react-hook-form + zod
+  state_management: React hooks (useState, useMemo, useCallback)
+  forms: controlled React inputs
   pdf: jspdf + jspdf-autotable
   routing: react-router-dom6
   package_manager: pnpm@8
@@ -36,6 +36,7 @@ architecture:
     - utils/validation.ts (validateRotulo, validateRotulos, hasValidRotulos)
     - utils/excelParser.ts (parseExcelData, generateSampleData)
     - utils/canastillaExcelParser.ts (parseCanastillaExcelData)
+    - utils/excelFileParser.ts (parseRotulosWorkbook, parseCanastillaWorkbook)
     - utils/canastillaValidation.ts (validateCanastillaRow, validateCanastillaRows)
     - utils/canastilla.ts (groupCanastillaByCaja, formatIdsMuestra, formatPlanchas)
 
@@ -45,14 +46,14 @@ architecture:
 
 testing:
   runner: vitest@2
-  framework: @testing-library/react + @testing-library/jest-dom + @testing-library/user-event
+  framework: "@testing-library/react + @testing-library/jest-dom + @testing-library/user-event"
   environment:
     unit: node
     hooks_and_components: happy-dom
   coverage_tool: v8
   strict_tdd: true
   test_files: "src/**/*.{test,spec}.{ts,tsx}"
-  test_count: 115
+  test_count: 156
   note: |
     Strict TDD is active. All new code must have tests before implementation.
     Unit tests use node environment, hook/component tests use happy-dom.
@@ -76,6 +77,21 @@ conventions:
     noFallthroughCasesInSwitch: true
     allowJs: true
   css: tailwindcss + css-variables + shadcn-tokens
+
+deployment:
+  target: SGC VM
+  delivery: static files from dist/ served by Nginx or Apache
+  build_command: pnpm run build
+  runtime_required_in_production: false
+  backend_required: false
+  database_required: false
+  spa_fallback: index.html
+  recommended_vm:
+    os: Linux LTS approved by SGC
+    cpu: 2 vCPU
+    memory: 4 GB RAM
+    storage: 20 GB SSD
+    network: HTTPS 443 with institutional TLS certificate and restricted SSH
 
 pdf_field_truncation_policy:
   observaciones: truncate with '...' when text exceeds available space

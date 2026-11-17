@@ -1,276 +1,221 @@
 # Generador de Rótulos Geológicos
 
-Aplicación web completa para generar rótulos geológicos en formato PDF a partir de datos tabulares. Desarrollada con React, TypeScript, Vite, Tailwind CSS, shadcn/ui y jsPDF.
+Aplicación web para capturar datos geológicos y generar rótulos de muestras y de canastillas en PDF. El proyecto está construido con React, TypeScript y Vite. La aplicación procesa los datos en el navegador y está preparada para desplegarse como contenido estático en una VM del servidor del SGC.
 
-## 🚀 Características
+## Estado actual
 
-- **Dos tipos de rótulos**: Rótulos de muestra refinado y rótulos de canastilla
-- **Tabla Editable**: Interfaz intuitiva para ingresar datos de muestras geológicas
-- **Importación desde Excel**: Pegue datos directamente desde hojas de cálculo
-- **Carga de plantilla Excel**: Seleccione la plantilla `.xlsx` para cargar datos de muestras o canastillas
-- **Validación en Tiempo Real**: Verifica que todos los campos requeridos estén completos
-- **Vista Previa Interactiva**: Visualice cómo se verán los rótulos antes de generar el PDF
-- **Generación de PDF Optimizada**: Crea archivos PDF en formato carta con 6 rótulos por página (2 columnas × 3 filas)
-- **Navegación entre Rótulos**: Revise múltiples rótulos con controles de navegación
-- **Diseño Responsivo**: Funciona en dispositivos de escritorio y móviles
-- **Formato Profesional**: Logo LITOTECA, campos con espaciado uniforme y tipografía optimizada
-- **Ajuste de texto automático**: Las etiquetas de canastilla ajustan el tamaño de fuente para no desbordar el espacio disponible
+- Aplicación funcional en modo cliente, sin backend ni base de datos.
+- Generación de PDF en el navegador.
+- Importación mediante pegado desde Excel/CSV.
+- Carga de la plantilla oficial `plantilla_rotulos.xlsx`.
+- Validación en tiempo real de los campos requeridos.
+- Vista previa antes de generar el PDF.
+- Pruebas automatizadas, typecheck, lint y build de producción configurados.
+- Despliegue oficial proyectado en una VM del SGC mediante Nginx o Apache.
 
-## 📋 Campos de Datos
+## Funcionalidades
 
-Cada rótulo geológico incluye los siguientes campos:
+### Rótulos de muestra
 
-### Rótulo de Muestra
+Permite ingresar filas manualmente, pegarlas desde Excel o cargar la hoja **Rótulos Muestras** de la plantilla oficial.
 
-La siguiente lista de campos aplica al rótulo de muestra refinado:
+Campos requeridos:
 
-### Campos Requeridos (*)
-- **ID MUESTRA*** - Identificador único de la muestra
-- **PLANCHA*** - Código de la plancha geológica
-- **GEÓLOGO O COLECTOR*** - Nombre del profesional responsable
-- **DATUM*** - Sistema de referencia geodésico
-- **X*** - Coordenada Este
-- **Y*** - Coordenada Norte
-- **CONTRATO, PROYECTO O CONVENIO*** - Nombre del proyecto
+- ID MUESTRA
+- PLANCHA
+- GEÓLOGO O COLECTOR
+- DATUM
+- X
+- Y
+- CONTRATO, PROYECTO O CONVENIO
 
-### Campos Opcionales
-- **IGM** - Código IGM (Instituto Geográfico Militar)
-- **LOCALIZACIÓN** - Descripción del lugar de recolección
-- **OBSERVACIONES** - Notas adicionales sobre la muestra
-- **UNIDAD O FORMACIÓN** - Unidad geológica o formación
+Campos opcionales:
 
-### Rótulo de Canastilla
+- IGM
+- LOCALIZACIÓN
+- OBSERVACIONES
+- UNIDAD O FORMACIÓN
 
-Cada rótulo de canastilla se genera a partir de filas con los siguientes campos:
+### Rótulos de canastilla
 
-- **CAJA*** - Número de la caja (debe ser un entero)
-- **ID MUESTRA*** - Identificador único de la muestra
-- **PROYECTO, CONTRATO O CONVENIO*** - Nombre del proyecto
-- **AÑO*** - Año de la muestra
-- **PLANCHA*** - Código de la plancha geológica
+Permite ingresar filas manualmente, pegarlas desde Excel o cargar la hoja **Rótulos Canastillas** de la misma plantilla descargable.
 
-Los rótulos de canastilla se agrupan por número de caja, consolidando las muestras, planchas y el proyecto en una sola etiqueta por caja.
+Campos requeridos:
 
-## 🛠️ Stack Tecnológico
+- CAJA, que debe ser un número entero
+- ID MUESTRA
+- PROYECTO, CONTRATO O CONVENIO
+- AÑO
+- PLANCHA
 
-- **Vite** - Build tool y dev server
-- **TypeScript** - Tipado estático
-- **React 19** - Framework de UI
-- **shadcn/ui** - Componentes de UI
-- **Tailwind CSS** - Estilos
-- **jsPDF** - Generación de PDFs
-- **React Router** - Navegación
-- **Lucide React** - Iconos
-- **Sonner** - Notificaciones toast
+Las filas se agrupan por número de caja para generar un rótulo consolidado por canastilla.
 
-## 📦 Instalación
+## Flujo de uso
 
-```bash
-# Instalar dependencias
-pnpm install
+1. Seleccione **Rótulo de Muestra** o **Rótulo Canastilla**.
+2. Ingrese datos manualmente, use **Pegar desde Excel** o seleccione **Cargar plantilla**.
+3. Para la plantilla oficial, seleccione `plantilla_rotulos.xlsx`. La aplicación leerá automáticamente la hoja correspondiente al tipo de rótulo seleccionado:
+   - Muestras: `Rótulos Muestras`.
+   - Canastillas: `Rótulos Canastillas`.
+4. Revise la vista previa y corrija los campos inválidos.
+5. Genere el PDF. Las filas inválidas no se incluyen.
 
-# Iniciar servidor de desarrollo
-pnpm run dev
+La aplicación no muestra errores de validación para una fila de muestra completamente vacía. La validación comienza cuando el usuario ingresa el primer dato.
 
-# Construir para producción
-pnpm run build
+## Plantilla y formato de importación
 
-# Ejecutar linter
-pnpm run lint
-```
+La plantilla descargable se encuentra en `public/plantilla_rotulos.xlsx` y contiene las hojas de muestras y canastillas. No se debe renombrar ninguna de estas hojas.
 
-## 🎯 Uso
+### Pegado de rótulos de muestra
 
-### 1. Ingresar Datos
-
-**Seleccione el tipo de rótulo** (Rótulo de Muestra o Rótulo Canastilla) en el selector de la parte superior. Luego:
-
-**Opción A: Manualmente**
-- Haga clic en "Agregar Fila" para crear nuevas entradas
-- Complete los campos directamente en la tabla
-- Use el botón de eliminar (🗑️) para quitar filas
-
-**Opción B: Desde Excel**
-1. Copie los datos de su hoja de cálculo (Ctrl+C / Cmd+C)
-2. Haga clic en "Pegar desde Excel"
-3. Los datos se importarán automáticamente
-
-**Opción C: Cargar plantilla**
-1. Haga clic en "Cargar plantilla"
-2. Seleccione `plantilla_rotulos.xlsx`
-3. Se leerá la hoja correspondiente al tipo de rótulo seleccionado
-
-**Opción C: Datos de Ejemplo**
-- Haga clic en "Cargar Ejemplo" para ver datos de muestra
-
-### 2. Validar Datos
-
-- Haga clic en "Validar Datos" para verificar que todos los campos requeridos estén completos
-- Los errores se mostrarán en la sección de vista previa
-- Solo los rótulos válidos se incluirán en el PDF
-
-### 3. Vista Previa
-
-- Use los controles de navegación para revisar cada rótulo
-- Verifique que la información sea correcta
-- Los rótulos se muestran exactamente como aparecerán en el PDF
-
-### 4. Generar PDF
-
-- Haga clic en "Descargar PDF"
-- Para rótulos de muestra, el archivo se descargará con el nombre: `rotulos_geologicos_YYYYMMDD.pdf`
-- Para rótulos de canastilla, el archivo se descargará con el nombre: `rotulos_canastilla_YYYYMMDD.pdf`
-- **Formato eficiente (muestra)**: 6 rótulos por página en formato carta (2 columnas × 3 filas)
-- **Dimensiones de cada rótulo de muestra**: 9.182cm × 7.259cm (3.61" × 2.86")
-- **Formato de canastilla**: 5 rótulos por página en formato carta
-- Los rótulos están perfectamente centrados y distribuidos en la página
-
-## 📊 Formato de Datos para Importación
-
-### Rótulo de Muestra
-
-Al pegar desde Excel, los datos deben estar en el siguiente orden (11 columnas):
-
-```
+```text
 IGM | ID MUESTRA | PLANCHA | GEÓLOGO O COLECTOR | LOCALIZACIÓN | DATUM | X | Y | OBSERVACIONES | UNIDAD O FORMACIÓN | CONTRATO, PROYECTO O CONVENIO
 ```
 
-**Ejemplo:**
-```
-| AMC1216 | 18IVB | Ana Milena Cardozo | Sector la Florida | Magna Colombia Bogotá | 998909 | 1697240 | | | Investigación Maritima, Costera e Insular
-```
+### Pegado de rótulos de canastilla
 
-### Rótulo de Canastilla
-
-Al pegar desde Excel, los datos deben estar en el siguiente orden (5 columnas):
-
-```
+```text
 CAJA | ID MUESTRA | PROYECTO, CONTRATO O CONVENIO | AÑO | PLANCHA
 ```
 
-**Ejemplo:**
-```
-| 1 | AMC1216 | Investigación Maritima, Costera e Insular | 2024 | 18IVB
+El lector de la plantilla identifica los encabezados aunque incluyan tildes, dos puntos u otros signos de formato. Los valores numéricos se convierten a texto para mantenerlos editables en la tabla.
+
+## Generación de PDF
+
+### Muestras
+
+- Página carta vertical.
+- 6 rótulos por página, distribuidos en una cuadrícula de 2 × 3.
+- Archivo: `rotulos_geologicos_YYYYMMDD.pdf`.
+
+### Canastillas
+
+- Página carta vertical.
+- 5 rótulos por página.
+- Agrupación por caja.
+- Ajuste automático del texto para evitar desbordamientos.
+- Archivo: `rotulos_canastilla_YYYYMMDD.pdf`.
+
+## Stack tecnológico
+
+- React 19 y React DOM.
+- TypeScript.
+- Vite 5 con SWC.
+- React Router 6.
+- Tailwind CSS y componentes Radix/shadcn.
+- SheetJS (`xlsx`) para leer plantillas Excel.
+- jsPDF para generar PDFs.
+- Vitest, Testing Library y happy-dom para pruebas.
+- pnpm 8 como gestor de paquetes.
+
+## Desarrollo local
+
+Requisitos: Node.js LTS y pnpm 8 o superior.
+
+```bash
+pnpm install
+pnpm run dev
 ```
 
-## 🏗️ Estructura del Proyecto
+Comandos de verificación:
 
+```bash
+pnpm test
+pnpm run typecheck
+pnpm run lint
+pnpm run build
 ```
+
+El build de producción se genera en `dist/`.
+
+## Despliegue oficial en VM del SGC
+
+### Arquitectura prevista
+
+La VM servirá los archivos estáticos generados por Vite. No se requiere ejecutar Node.js permanentemente, ni instalar una base de datos o un backend para el estado actual de la aplicación.
+
+```text
+Usuario del SGC
+      |
+   HTTPS :443
+      |
+VM del SGC
+  Nginx/Apache
+      |
+  archivos dist/
+```
+
+### Requerimientos recomendados de la VM
+
+- Sistema operativo Linux LTS aprobado por el SGC, preferiblemente Ubuntu Server 22.04/24.04 LTS.
+- 2 vCPU.
+- 4 GB de RAM.
+- 20 GB de almacenamiento SSD.
+- Arquitectura x86_64.
+- IP fija o reserva DHCP.
+- Nombre DNS institucional.
+- Acceso HTTPS con certificado institucional.
+- Acceso SSH administrativo restringido a la red autorizada.
+- Firewall institucional permitiendo HTTPS y, si corresponde, HTTP únicamente para redirección.
+
+### Instalación y publicación
+
+El build puede realizarse en CI o en la VM con Node.js LTS y pnpm:
+
+```bash
+pnpm install --frozen-lockfile
+pnpm run test
+pnpm run typecheck
+pnpm run lint
+pnpm run build
+```
+
+Luego se publica el contenido de `dist/` en el directorio raíz del servidor web. Deben conservarse especialmente:
+
+- `plantilla_rotulos.xlsx`.
+- El logo institucional.
+- Todos los archivos JavaScript y CSS generados.
+
+Como la aplicación utiliza `BrowserRouter`, el servidor debe reenviar las rutas desconocidas a `index.html`. Para Nginx:
+
+```nginx
+location / {
+    try_files $uri $uri/ /index.html;
+}
+```
+
+### Operación y seguridad
+
+Antes de habilitar el acceso oficial se deben definir con el SGC:
+
+- Alcance de red: interno, VPN o público.
+- Responsable de administración de la VM.
+- Renovación del certificado TLS.
+- Monitoreo de disponibilidad y revisión de logs.
+- Backup de la configuración del servidor y del artefacto publicado.
+- Proceso de actualización y rollback.
+- Escaneo de vulnerabilidades y controles institucionales.
+
+La aplicación no almacena en el servidor los archivos Excel seleccionados ni los datos ingresados: el procesamiento ocurre en el navegador. Si en el futuro se requiere persistencia, usuarios, auditoría o almacenamiento centralizado, será necesario diseñar un backend y revisar nuevamente los requisitos de seguridad.
+
+## Estructura principal
+
+```text
 src/
-├── components/            # Componentes React
-│   ├── ui/                # Componentes shadcn/ui
-│   ├── DataTable.tsx      # Tabla editable de muestras
-│   ├── CanastillaDataTable.tsx # Tabla editable de canastilla
-│   ├── RotuloPreview.tsx  # Vista previa del rótulo de muestra
-│   ├── CanastillaPreview.tsx # Vista previa del rótulo de canastilla
-│   ├── NavigationControls.tsx # Controles de navegación
-│   └── ValidationMessages.tsx # Mensajes de validación
-├── hooks/                 # Custom hooks
-│   ├── useRotuloData.ts   # Hook para estado de muestras
-│   └── useCanastillaData.ts # Hook para estado de canastilla
-├── types/                 # Definiciones TypeScript
-│   ├── rotulo.ts          # Tipos de rótulo de muestra
-│   └── canastilla.ts      # Tipos de rótulo de canastilla
-├── utils/                 # Utilidades
-│   ├── validation.ts      # Lógica de validación de muestras
-│   ├── canastillaValidation.ts # Lógica de validación de canastilla
-│   ├── pdfGenerator.ts    # Generación de PDFs de muestra
-│   ├── canastillaPdfGenerator.ts # Generación de PDFs de canastilla
-│   ├── excelParser.ts     # Parseo de datos de Excel de muestras
-│   ├── canastillaExcelParser.ts # Parseo de datos de Excel de canastilla
-│   ├── canastilla.ts      # Agrupación de canastillas por caja
-│   └── pdfUtils.ts        # Utilidades de PDF (imágenes, texto)
-├── pages/                 # Páginas
-│   ├── Index.tsx          # Página principal
-│   └── NotFound.tsx       # Página 404
-├── lib/
-│   └── utils.ts           # Utilidades de componentes
-└── App.tsx                # Componente raíz
+├── components/                 # Tablas, vistas previas y componentes UI
+├── hooks/                      # Estado de muestras y canastillas
+├── pages/Index.tsx             # Página principal
+├── types/                      # Modelos y campos requeridos
+└── utils/
+    ├── excelParser.ts          # Pegado de datos de muestras
+    ├── canastillaExcelParser.ts # Pegado de datos de canastillas
+    ├── excelFileParser.ts      # Lectura de la plantilla .xlsx
+    ├── validation.ts            # Validación de muestras
+    ├── canastillaValidation.ts  # Validación de canastillas
+    ├── pdfGenerator.ts          # PDF de muestras
+    └── canastillaPdfGenerator.ts # PDF de canastillas
 ```
 
-## 🎨 Diseño del PDF
-
-### Rótulo de Muestra
-
-El PDF de muestra replica exactamente el formato del documento de referencia:
-
-- **Formato de Página**: Carta (8.5" × 11" / 21.59cm × 27.94cm), orientación vertical
-- **Distribución**: 6 rótulos por página en cuadrícula 2×3 (2 columnas, 3 filas)
-- **Dimensiones por Rótulo**: 9.182cm × 7.259cm (3.61" × 2.86")
-- **Logo LITOTECA**: 4.4cm × 1.12cm, centrado en cada rótulo
-- **Tipografía**: Helvetica con tamaños optimizados (8-9pt para etiquetas, 8pt para valores)
-- **Espaciado**: Distancia uniforme de dos espacios entre etiquetas y valores
-- **Bordes**: Cada rótulo tiene un borde negro de 0.5mm
-- **Márgenes**: Los rótulos están centrados con espacios de 0.5cm entre ellos
-- **Campos Subrayados**: ID Muestra, Plancha, Datum, Unidad/Formación, Coordenadas, Localización y Geólogo
-- **Multilinea**: Localización y Observaciones pueden ocupar múltiples líneas si es necesario
-
-### Rótulo de Canastilla
-
-El PDF de canastilla tiene un formato diferenciado:
-
-- **Formato de Página**: Carta (8.5" × 11"), orientación vertical
-- **Distribución**: 5 rótulos por página
-- **Agrupación por caja**: Las filas se consolidan por número de caja
-- **Ajuste de texto automático**: Los textos (IDs de muestra y planchas) reducen su tamaño de fuente para no desbordar el espacio disponible
-- **Logo LITOTECA**: Incluido en cada rótulo de canastilla
-
-## 🔧 Personalización
-
-### Modificar Campos Requeridos de Muestra
-
-Edite el archivo `src/types/rotulo.ts`:
-
-```typescript
-export const REQUIRED_FIELDS: (keyof RotuloData)[] = [
-  'idMuestra',
-  'plancha',
-  // Agregue o quite campos según necesite
-];
-```
-
-### Modificar Campos Requeridos de Canastilla
-
-Edite el archivo `src/types/canastilla.ts`:
-
-```typescript
-export const CANASTILLA_REQUIRED_FIELDS: (keyof CanastillaInput)[] = [
-  'caja',
-  'idMuestra',
-  // Agregue o quite campos según necesite
-];
-```
-
-### Ajustar Diseño del PDF
-
-Modifique `src/utils/pdfGenerator.ts` (muestra) o `src/utils/canastillaPdfGenerator.ts` (canastilla) para cambiar:
-- **Dimensiones del rótulo**: Variables `rotuloWidth` y `rotuloHeight`
-- **Distribución por página**: Variables `cols` y `rows` (actualmente 2×3 = 6 rótulos) o `labelsPerPage` (canastilla, actualmente 5)
-- **Espaciado**: Variables `horizontalGap` y `verticalGap` (actualmente 0.5cm)
-- **Tamaños de fuente**: Llamadas a `doc.setFontSize()`
-- **Logo**: Variables `logoWidth` y `logoHeight`
-- **Posicionamiento de campos**: Ajustar valores `yPos` y márgenes internos
-- **Formato de página**: Cambiar `format` en configuración de jsPDF
-
-## 📝 Notas Importantes
-
-- **Coordenadas**: Los campos X e Y deben ser valores numéricos
-- **Validación**: Solo los rótulos válidos se incluyen en el PDF
-- **Canastilla**: El campo CAJA debe ser un número entero para agrupar las muestras correctamente
-- **Navegador**: Se requiere un navegador moderno con soporte para Clipboard API
-- **Rendimiento**: La aplicación puede manejar cientos de rótulos simultáneamente
-
-## 🐛 Solución de Problemas
-
-**Problema**: No se puede pegar desde Excel
-- **Solución**: Asegúrese de que el navegador tenga permisos de portapapeles. Alternativamente, pegue directamente en una celda de la tabla.
-
-**Problema**: El PDF no se descarga
-- **Solución**: Verifique que haya al menos un rótulo válido. Revise la consola del navegador para errores.
-
-**Problema**: Los datos no se importan correctamente
-- **Solución**: Asegúrese de que los datos estén separados por tabuladores y tengan exactamente 11 columnas.
-
-## 📄 Licencia
+## Licencia
 
 Este proyecto fue desarrollado por Adrian Linares.
